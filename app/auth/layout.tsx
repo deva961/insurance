@@ -5,9 +5,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { auth } from "@/lib/auth";
+import { LOGGED_IN } from "@/routes";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
-const AuthLayout = ({ children }: { children: React.ReactNode }) => {
+const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
+  const session = await auth();
+
+  if (session) {
+    redirect(LOGGED_IN);
+  }
+
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">

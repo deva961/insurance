@@ -86,7 +86,9 @@ export const LoginForm = () => {
                   variant={"link"}
                   className="text-black/70 text-xs sm:text-sm "
                 >
-                  <Link href="/forgot-password">Forgot your password?</Link>
+                  <Link href="/auth/forgot-password">
+                    Forgot your password?
+                  </Link>
                 </Button>
               </div>
               <FormControl>

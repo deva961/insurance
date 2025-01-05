@@ -5,6 +5,7 @@ import { z } from "zod";
 import { loginSchema } from "@/schema/login-schema";
 import { signIn } from "@/lib/auth";
 import { AuthError } from "next-auth";
+import { LOGGED_IN } from "@/routes";
 
 export const loginUser = async (values: z.infer<typeof loginSchema>) => {
   // login logic
@@ -22,7 +23,7 @@ export const loginUser = async (values: z.infer<typeof loginSchema>) => {
     await signIn("credentials", {
       phone,
       password,
-      redirectTo: "/",
+      redirectTo: LOGGED_IN,
     });
   } catch (error) {
     if (error instanceof AuthError) {
