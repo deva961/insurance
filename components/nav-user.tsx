@@ -1,19 +1,11 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { ChevronsUpDown, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -25,6 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { NOT_LOGGED_IN } from "@/routes";
 import { Role } from "@prisma/client";
 import { signOut } from "next-auth/react";
 
@@ -78,7 +71,7 @@ export function NavUser({ user }: NavUserProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            {/* <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
                 Upgrade to Pro
@@ -99,10 +92,10 @@ export function NavUser({ user }: NavUserProps) {
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator /> */}
             <DropdownMenuItem
               onClick={async () => {
-                await signOut({ redirectTo: "/login" });
+                await signOut({ redirectTo: NOT_LOGGED_IN });
               }}
             >
               <LogOut />

@@ -22,7 +22,7 @@ export default auth((req) => {
   if (isApiAuth) return;
 
   if (!isLoggedIn && !isPublicRoute) {
-    let callbackUrl = new URL(LOGGED_IN, nextUrl);
+    // let callbackUrl = new URL(LOGGED_IN, nextUrl);
     return Response.redirect(new URL(NOT_LOGGED_IN, nextUrl));
   }
 

@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -25,6 +24,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { Role } from "@prisma/client";
 
 const items = [
   {
@@ -36,16 +36,19 @@ const items = [
     title: "Channels",
     url: "/category",
     icon: Inbox,
+    role: [Role.ADMIN],
   },
   {
     title: "Locations",
     url: "/showrooms",
     icon: Warehouse,
+    role: [Role.ADMIN],
   },
   {
     title: "Users",
     url: "/users",
     icon: Users,
+    role: [Role.ADMIN, Role.MANAGER],
   },
   {
     title: "Events",
@@ -61,10 +64,21 @@ const items = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
+  const role = session?.user.role;
 
   if (!session || !session.user) {
-    return null; // Or a fallback UI like a loading spinner
+    return <>Loading....</>;
   }
+
+  // Filter sidebar items based on user role
+  const filteredItems = items.filter((item) => {
+    // If no role is specified for the route, allow access
+    if (!item.role) {
+      return true;
+    }
+    // Check if the user's role matches any of the required roles for this route
+    return item.role.includes(role);
+  });
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -76,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild className="p-5" tooltip={item.title}>
                   <Link href={item.url}>

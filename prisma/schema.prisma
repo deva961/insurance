@@ -21,12 +21,66 @@ enum Role {
 }
 
 model User {
-  id       String  @id @default(uuid())
+  id       String   @id @default(uuid())
   name     String
-  phone    String  @unique
+  phone    String   @unique
   email    String?
   password String
-  role     Role    @default(USER)
+  role     Role     @default(USER)
+  manager  Manager?
+  driver   Driver?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  showrooms Showroom[] // One category can have many showrooms
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Showroom {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  location   String?
+  categoryId String
+  managerId  String?  @unique
+  drivers    Driver[] // One showroom can have many drivers
+
+  category Category @relation(fields: [categoryId], references: [id]) // Relation to Category
+  manager  Manager? @relation // No need for fields and references here
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Manager {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  showroom   Showroom @relation(fields: [showroomId], references: [id]) // Specify relation here
+  showroomId String   @unique
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Driver {
+  id         String  @id @default(uuid())
+  userId     String  @unique
+  employeeId String  @unique
+  // status     DriverStatus @default(AVAILABLE)
+  license    String
+  licenseImg String?
+  showroomId String?
+
+  showroom Showroom? @relation(fields: [showroomId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -14,8 +14,13 @@ export const userSchema = z.object({
       message: "Phone number must be at most 10 characters.",
     }),
   email: z.string().optional(),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
+  // password: z.string().min(4, {
+  //   message: "Password must be at least 4 characters.",
+  // }),
   role: z.enum([Role.ADMIN, Role.MANAGER, Role.DRIVER, Role.USER]),
+});
+
+export const userExtendedSchema = userSchema.extend({
+  showroomId: z.string().optional(),
+  employeeId: z.string().optional(),
 });

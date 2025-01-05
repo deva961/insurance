@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { userSchema } from "@/schema/schema";
+import { userSchema } from "@/schema/user-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Role } from "@prisma/client";
 import { useForm } from "react-hook-form";
@@ -27,7 +27,7 @@ export const RegisterForm = () => {
       name: "",
       phone: "",
       email: "",
-      password: "",
+      // password: "",
       role: Role.USER,
     },
   });
@@ -100,7 +100,7 @@ export const RegisterForm = () => {
           )}
         />
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="password"
           render={({ field }) => (
@@ -116,13 +116,9 @@ export const RegisterForm = () => {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
         <Button type="submit" disabled={isSubmitting} className="flex w-full">
-          {isSubmitting ? (
-            <Spinner />
-          ) : (
-            "Sign Up"
-          )}
+          {isSubmitting ? <Spinner /> : "Sign Up"}
         </Button>
       </form>
     </Form>
