@@ -1,20 +1,17 @@
 import { auth, signOut } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { NOT_LOGGED_IN } from "@/routes";
 
 export default async function Page() {
   const session = await auth();
-  if (!session) {
-    redirect("/login");
-  }
 
   return (
     <>
-    {JSON.stringify(session)}
+      {JSON.stringify(session)}
       <form
         action={async () => {
           "use server";
           await signOut({
-            redirectTo: "/login",
+            redirectTo: NOT_LOGGED_IN,
           });
         }}
       >

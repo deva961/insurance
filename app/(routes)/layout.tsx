@@ -4,9 +4,18 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { auth } from "@/lib/auth";
+import { NOT_LOGGED_IN } from "@/routes";
 import { SessionProvider } from "next-auth/react";
+import { redirect } from "next/navigation";
 
-const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
+  const session = await auth();
+
+  if (!session) {
+    redirect(NOT_LOGGED_IN);
+  }
+
   return (
     <SessionProvider>
       <SidebarProvider>

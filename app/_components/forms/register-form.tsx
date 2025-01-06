@@ -1,6 +1,6 @@
 "use client";
 
-import { createUser } from "@/actions/user-action";
+import { createAdmin } from "@/actions/register-action";
 import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +12,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { registerationSchema } from "@/schema/user-schema";
 
-import { userSchema } from "@/schema/user-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Role } from "@prisma/client";
 import { useForm } from "react-hook-form";
@@ -21,25 +21,23 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 
 export const RegisterForm = () => {
-  const form = useForm<z.infer<typeof userSchema>>({
-    resolver: zodResolver(userSchema),
+  const form = useForm<z.infer<typeof registerationSchema>>({
+    resolver: zodResolver(registerationSchema),
     defaultValues: {
       name: "",
       phone: "",
       email: "",
-      // password: "",
+      password: "",
       role: Role.USER,
     },
   });
 
   const { isSubmitting } = form.formState;
 
-  async function onSubmit(values: z.infer<typeof userSchema>) {
+  async function onSubmit(values: z.infer<typeof registerationSchema>) {
     try {
-      const res = await createUser(values);
-      if (res.status !== 201) {
-        toast.error(res.message);
-      }
+      const res = await createAdmin(values);
+
       toast.success("User created successfully");
     } catch (error) {
       console.log(error);
@@ -100,7 +98,7 @@ export const RegisterForm = () => {
           )}
         />
 
-        {/* <FormField
+        <FormField
           control={form.control}
           name="password"
           render={({ field }) => (
@@ -116,7 +114,7 @@ export const RegisterForm = () => {
               <FormMessage />
             </FormItem>
           )}
-        /> */}
+        />
         <Button type="submit" disabled={isSubmitting} className="flex w-full">
           {isSubmitting ? <Spinner /> : "Sign Up"}
         </Button>

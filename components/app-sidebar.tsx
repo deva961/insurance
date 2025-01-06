@@ -25,6 +25,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
+import { Skeleton } from "./ui/skeleton";
 
 const items = [
   {
@@ -51,9 +52,10 @@ const items = [
     role: [Role.ADMIN, Role.MANAGER],
   },
   {
-    title: "Events",
-    url: "/events",
+    title: "Assign",
+    url: "/assign",
     icon: Calendar,
+    role: [Role.MANAGER, Role.ADMIN],
   },
   {
     title: "Records",
@@ -67,7 +69,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const role = session?.user.role;
 
   if (!session || !session.user) {
-    return <>Loading....</>;
+    return (
+      <div className="w-64 border-r">
+        <Skeleton className="h-10 w-32 mx-auto mt-5 mb-10" />
+        <div className="space-y-5 m-5">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+    );
   }
 
   // Filter sidebar items based on user role
