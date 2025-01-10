@@ -33,14 +33,9 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-const eventSchema = z.object({
-  plate: z.string().min(1, "Car plate is required"),
-  pickupDate: z.date({
-    required_error: "Pick up date is required.",
-  }),
-  driverId: z.string().min(1, "Driver is required"),
-});
+import { assignmentSchema } from "@/schema/assignment-schema";
+import { createAssignment } from "@/actions/assignment-action";
+import toast from "react-hot-toast";
 
 export const AssignForm = () => {
   const [drivers, setDrivers] = useState<DriverData[]>([]);
@@ -56,20 +51,28 @@ export const AssignForm = () => {
     fetchDrivers();
   }, []);
 
-  const form = useForm<z.infer<typeof eventSchema>>({
-    resolver: zodResolver(eventSchema),
+  const form = useForm<z.infer<typeof assignmentSchema>>({
+    resolver: zodResolver(assignmentSchema),
     defaultValues: {
-      plate: "",
-      // pickupDate: "",
-      driverId: "", // Add default value for driverId
+      carPlate: "",
+      pickupDate: new Date(),
+      driverId: "",
     },
   });
 
   const { isSubmitting } = form.formState;
 
-  const onSubmit = async (values: z.infer<typeof eventSchema>) => {
-    // Handle form submission here
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof assignmentSchema>) => {
+    try {
+      const res = await createAssignment(values);
+
+      if (res.status !== 200) {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong!");
+    }
   };
 
   return (
@@ -78,7 +81,7 @@ export const AssignForm = () => {
         {/* Car Plate Field */}
         <FormField
           control={form.control}
-          name="plate"
+          name="carPlate"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Car Plate</FormLabel>
@@ -118,11 +121,11 @@ export const AssignForm = () => {
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={field.value}
+                    selected={field.value ? new Date(field.value) : undefined}
                     onSelect={field.onChange}
                     disabled={(date) =>
                       date.getTime() < new Date().setHours(0, 0, 0, 0)
-                    } // Disable dates before today
+                    }
                     initialFocus
                   />
                 </PopoverContent>
@@ -135,11 +138,15 @@ export const AssignForm = () => {
         <FormField
           control={form.control}
           name="driverId"
-          render={({}) => (
+          render={({ field }) => (
             <FormItem className="flex flex-col w-full">
               <FormLabel>Driver</FormLabel>
               <FormControl>
-                <Select>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={isSubmitting}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select Driver" />
                   </SelectTrigger>

@@ -36,8 +36,7 @@ export const RegisterForm = () => {
 
   async function onSubmit(values: z.infer<typeof registerationSchema>) {
     try {
-      const res = await createAdmin(values);
-
+      await createAdmin(values);
       toast.success("User created successfully");
     } catch (error) {
       console.log(error);

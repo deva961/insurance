@@ -32,3 +32,12 @@ export interface Driver {
   employeeId: string;
   license: string;
 }
+
+export interface Assignment {
+  id: string;
+  driverId: string;
+  managerId: string | null;
+  showroomId: string | null;
+  pickupDate: Date;
+  carPlate: string;
+}

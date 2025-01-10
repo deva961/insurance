@@ -20,6 +20,12 @@ enum Role {
   USER
 }
 
+enum Status {
+  ASSIGNED
+  PENDING
+  COMPLETED
+}
+
 model User {
   id       String   @id @default(uuid())
   name     String
@@ -90,13 +96,14 @@ model Driver {
 model Assignment {
   id         String   @id @default(uuid())
   driverId   String
-  managerId  String
-  showroomId String
+  managerId  String?
+  showroomId String?
   pickupDate DateTime
   carPlate   String
+  status     Status   @default(ASSIGNED)
 
   driver    Driver   @relation(fields: [driverId], references: [id])
-  manager   Manager  @relation(fields: [managerId], references: [id])
+  manager   Manager? @relation(fields: [managerId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

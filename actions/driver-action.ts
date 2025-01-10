@@ -54,3 +54,11 @@ export const getDrivers = async (): Promise<DriverResponse> => {
     };
   }
 };
+
+export const getDriverById = async (id: string) => {
+  const driver = await db.driver.findUnique({
+    where: { userId: id },
+  });
+
+  return driver;
+};

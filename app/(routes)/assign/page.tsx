@@ -1,4 +1,3 @@
-import { getDrivers } from "@/actions/driver-action";
 import { AssignForm } from "@/app/_components/forms/assign-form";
 import {
   Card,
@@ -9,7 +8,6 @@ import {
 } from "@/components/ui/card";
 
 const AssignPage = async () => {
-  const res = await getDrivers();
   return (
     <Card className="max-w-screen-xl">
       <CardHeader>
