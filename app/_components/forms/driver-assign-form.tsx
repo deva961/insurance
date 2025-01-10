@@ -36,9 +36,9 @@ const driverAssignSchema = z.object({
 });
 
 export const DriverAssignForm = ({ carPlate }: { carPlate: string }) => {
-  //   const [taskType, setTaskType] = useState<"PICKUP" | "DROPOFF" | undefined>(
-  //     undefined
-  //   );
+  // const [taskType, setTaskType] = useState<"PICKUP" | "DROPOFF" | undefined>(
+  //   undefined
+  // );
 
   const [frontImg, setFrontImg] = useState<string | null>(null);
 
@@ -74,15 +74,27 @@ export const DriverAssignForm = ({ carPlate }: { carPlate: string }) => {
     }
   }
 
-  // Start the camera feed
+  // Start the camera feed with the back camera
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-      });
+      // Enumerate all video devices to get the back camera
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const backCamera = devices.find(
+        (device) =>
+          device.kind === "videoinput" && device.label.includes("back")
+      );
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+      // If back camera is found, use it
+      if (backCamera) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: backCamera.deviceId }, // Use the back camera
+        });
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } else {
+        toast.error("Back camera not found.");
       }
     } catch (error) {
       console.log(error);
@@ -209,14 +221,12 @@ export const DriverAssignForm = ({ carPlate }: { carPlate: string }) => {
 
         {/* Display the captured front image */}
         {frontImg && (
-          <div>
-            <Image
-              src={frontImg}
-              alt="Captured Front Image"
-              width={200}
-              height={200}
-            />
-          </div>
+          <Image
+            src={frontImg}
+            alt="Captured Front Image"
+            height={200}
+            width={200}
+          />
         )}
 
         {/* Images Input Field */}
