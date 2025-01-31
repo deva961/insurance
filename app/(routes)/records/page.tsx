@@ -64,10 +64,10 @@ const Records = async () => {
 
   return (
     <div className="grid grid-cols-4 gap-5">
-      {records.map((record) => (
-        <Card key={record.id}>
+      {records.map((record, index) => (
+        <Card key={index}>
           <CardHeader>
-            <CardTitle>Assignment</CardTitle>
+            <CardTitle>Assignment {index + 1}</CardTitle>
           </CardHeader>
           <CardContent>
             <p>Date: {format(new Date(record.pickupDate), "PPP")}</p>
