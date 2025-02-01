@@ -11,9 +11,9 @@ const AssignPage = async () => {
   return (
     <Card className="max-w-screen-xl">
       <CardHeader>
-        <CardTitle>Create Category</CardTitle>
+        <CardTitle>Create Assignment</CardTitle>
         <CardDescription>
-          Allows you to create a channels like arena, nexa, autozone etc.
+          Allows you to create a new assignment to a driver.
         </CardDescription>
       </CardHeader>
       <CardContent>

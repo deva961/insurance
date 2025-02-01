@@ -1,3 +1,4 @@
+import { Status } from "@prisma/client";
 import { z } from "zod";
 
 export const assignmentSchema = z.object({
@@ -8,5 +9,9 @@ export const assignmentSchema = z.object({
     message: "Please choose driver",
   }),
   pickupDate: z.date(),
-  // status: z.enum([Status.ASSIGNED, Status.PENDING, Status.COMPLETED]),
+  status: z.enum([Status.ASSIGNED, Status.PENDING, Status.COMPLETED]),
+  transportType: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  type: z.string().optional(),
+  finalImage: z.string().optional(),
 });

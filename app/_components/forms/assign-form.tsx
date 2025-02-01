@@ -66,12 +66,15 @@ export const AssignForm = () => {
     try {
       const res = await createAssignment(values);
 
-      if (res.status !== 200) {
-        toast.error(res.message);
+      if (res?.status === 200) {
+        toast.success("Assignment created successfully!");
+        form.reset();
+      } else {
+        toast.error(res?.message || "Failed to create assignment!");
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong!");
+      console.error("Error in onSubmit:", error);
+      toast.error("Something went wrong while submitting the assignment.");
     }
   };
 

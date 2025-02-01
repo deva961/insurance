@@ -11,7 +11,15 @@ const page = async ({ params }: { params: { id: string } }) => {
     return <>No Data found</>;
   }
 
-  return <DriverAssignForm carPlate={data?.carPlate} />;
+  return (
+    <DriverAssignForm
+      status={data.status}
+      driverId={data.driverId}
+      id={data.id}
+      carPlate={data.carPlate}
+      pickupDate={data.pickupDate}
+    />
+  );
 };
 
 export default page;

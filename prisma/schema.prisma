@@ -94,13 +94,16 @@ model Driver {
 }
 
 model Assignment {
-  id         String   @id @default(uuid())
-  driverId   String
-  managerId  String?
-  showroomId String?
-  pickupDate DateTime
-  carPlate   String
-  status     Status   @default(ASSIGNED)
+  id                 String   @id @default(uuid())
+  driverId           String
+  managerId          String?
+  showroomId         String?
+  pickupDate         DateTime
+  carPlate           String
+  type               String?
+  transportationType String?
+  images             String[]
+  status             Status   @default(ASSIGNED)
 
   driver    Driver   @relation(fields: [driverId], references: [id])
   manager   Manager? @relation(fields: [managerId], references: [id])

@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { assignmentSchema } from "@/schema/assignment-schema";
-import { Role } from "@prisma/client";
+import { Role, Status } from "@prisma/client";
 import { z } from "zod";
 
 export const getAssignments = async () => {
@@ -55,6 +55,7 @@ export const getAssignmentsForDriver = async (
       assignments = await db.assignment.findMany({
         where: {
           driverId,
+          status: { not: Status.COMPLETED },
         },
         include: {
           driver: {
@@ -84,34 +85,95 @@ export const getAssignmentsForDriver = async (
 export const createAssignment = async (
   values: z.infer<typeof assignmentSchema>
 ) => {
+  // Validate the fields using the schema
   const validatedFields = assignmentSchema.safeParse(values);
 
   if (!validatedFields.success) {
     return {
       data: [],
-      message: "Please fill all the fields!",
+      message: "Please fill all the fields correctly!",
+      status: 400,
+    };
+  }
+
+  const { driverId, carPlate, pickupDate } = validatedFields.data;
+
+  try {
+    // Check if a driver already has an active assignment
+    const existingAssignment = await db.assignment.findFirst({
+      where: { driverId },
+    });
+
+    if (existingAssignment && existingAssignment.status !== Status.COMPLETED) {
+      return {
+        data: [],
+        message: "Driver already has an active assignment!",
+        status: 400,
+      };
+    }
+
+    const newAssignment = await db.assignment.create({
+      data: {
+        driverId,
+        carPlate,
+        pickupDate,
+      },
+    });
+
+    return {
+      status: 200,
+      message: "Assignment created successfully",
+      data: newAssignment,
+    };
+  } catch (error) {
+    console.error("Error creating assignment:", error);
+
+    return {
+      data: [],
+      message: "Failed to create assignment due to an internal error.",
+      status: 500,
+    };
+  }
+};
+
+export const updateAssignment = async (
+  id: string,
+  driverId: string,
+  values: z.infer<typeof assignmentSchema>
+) => {
+  // Validate the fields using the schema
+  const validatedFields = assignmentSchema.safeParse(values);
+
+  if (!validatedFields.success) {
+    return {
+      data: [],
+      message: "Please fill all the fields correctly!",
       status: 400,
     };
   }
 
   try {
-    const res = await db.assignment.create({
+    const updatedAssignment = await db.assignment.update({
+      where: { id, driverId },
       data: {
-        driverId: validatedFields.data.driverId,
-        carPlate: validatedFields.data.carPlate,
-        pickupDate: validatedFields.data.pickupDate,
+        transportationType: values.transportType,
+        status: values.status,
+        type: values.type,
+        images: values.images,
       },
     });
+
     return {
       status: 200,
-      message: "success",
-      data: res,
+      message: "Assignment updated successfully",
+      data: updatedAssignment,
     };
-    console.log(values);
   } catch (error) {
+    console.error("Error updating assignment:", error);
+
     return {
       data: [],
-      message: "Failed to create assignment!",
+      message: "Failed to update assignment due to an internal error.",
       status: 500,
     };
   }

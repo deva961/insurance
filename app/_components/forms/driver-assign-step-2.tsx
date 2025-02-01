@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
 import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,41 +22,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { assignmentSchema } from "@/schema/assignment-schema";
-import { Status } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { useState, useRef } from "react";
 import toast from "react-hot-toast";
-import { updateAssignment } from "@/actions/assignment-action";
+import Image from "next/image";
 
 // Define schema for validation
-export const DriverAssignForm = ({
-  carPlate,
-  status,
-  id,
-  driverId,
-  pickupDate,
-}: {
-  id: string;
-  driverId: string;
-  carPlate: string;
-  status: Status;
-  pickupDate: Date;
-}) => {
+const driverAssignSchema = z.object({
+  transportType: z.string(),
+  images: z.array(z.string()).optional(),
+  type: z.string(),
+  finalImage: z.string().optional(),
+});
+
+export const DriverAssignForm = ({ carPlate }: { carPlate: string }) => {
+  // const [taskType, setTaskType] = useState<"PICKUP" | "DROPOFF" | undefined>(
+  //   undefined
+  // );
+
   const [frontImg, setFrontImg] = useState<string | null>(null);
-  const [sideImg, setSideImg] = useState<string | null>(null);
-  const [backImg, setBackImg] = useState<string | null>(null);
-  const [odometerImg, setOdometerImg] = useState<string | null>(null);
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Create a ref for the video element and canvas element
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const form = useForm<z.infer<typeof assignmentSchema>>({
-    resolver: zodResolver(assignmentSchema),
+  const form = useForm<z.infer<typeof driverAssignSchema>>({
+    resolver: zodResolver(driverAssignSchema),
     defaultValues: {
-      carPlate: carPlate,
-      driverId: driverId,
-      status: status,
-      pickupDate: pickupDate,
       transportType: "",
       images: [""],
       finalImage: "",
@@ -70,73 +62,75 @@ export const DriverAssignForm = ({
   const { isSubmitting } = form.formState;
   const router = useRouter();
 
-  // Start the camera (on component mount)
-  useEffect(() => {
-    startCamera();
-  }, []);
-
-  // Start the camera to display video feed
-  const startCamera = () => {
-    if (videoRef.current && canvasRef.current) {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => {
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        })
-        .catch((err) => {
-          console.error("Error accessing camera: ", err);
-        });
-    }
-  };
-
-  // Capture the image from the camera feed
-  const captureImage = (imageType: "front" | "side" | "back" | "odometer") => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-
-    if (video && canvas) {
-      const context = canvas.getContext("2d");
-      if (context) {
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        const imageUrl = canvas.toDataURL("image/png"); // Get the image as a base64 string
-
-        if (imageType === "front") setFrontImg(imageUrl);
-        if (imageType === "side") setSideImg(imageUrl);
-        if (imageType === "back") setBackImg(imageUrl);
-        if (imageType === "odometer") setOdometerImg(imageUrl);
-
-        // Push the captured image to the form's images array
-        form.setValue("images", [
-          ...(form.getValues("images") ?? []),
-          imageUrl,
-        ]);
-      }
-    }
-  };
-
   // Handle form submission
-  async function onSubmit(values: z.infer<typeof assignmentSchema>) {
+  async function onSubmit(data: z.infer<typeof driverAssignSchema>) {
     try {
-      const res = await updateAssignment(id, driverId, {
-        ...values,
-        status: Status.PENDING,
-      });
-
-      if (res.status === 200) {
-        toast.success("Assignment updated successfully!");
-      } else {
-        toast.error(res.message);
-      }
+      console.log(data); // This will log the form data
+      toast.success("Assignment saved successfully!");
+      router.push("/");
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong!");
     }
   }
 
-  return status === Status.ASSIGNED ? (
+  // Start the camera feed with the back camera
+  const startCamera = async () => {
+    try {
+      // Enumerate all video devices to get the back camera
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const backCamera = devices.find(
+        (device) =>
+          device.kind === "videoinput" && device.label.includes("back")
+      );
+
+      // If back camera is found, use it
+      if (backCamera) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: backCamera.deviceId }, // Use the back camera
+        });
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } else {
+        toast.error("Back camera not found.");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Could not access camera.");
+    }
+  };
+
+  // Capture an image from the camera feed
+  const captureImage = () => {
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext("2d");
+
+      if (context) {
+        canvasRef.current.width = videoRef.current.videoWidth;
+        canvasRef.current.height = videoRef.current.videoHeight;
+        context.drawImage(
+          videoRef.current,
+          0,
+          0,
+          canvasRef.current.width,
+          canvasRef.current.height
+        );
+
+        // Convert the canvas image to a data URL and set it to frontImg state
+        const imageUrl = canvasRef.current.toDataURL();
+        setFrontImg(imageUrl);
+
+        // Optionally, you can stop the camera stream here
+        const stream = videoRef.current.srcObject as MediaStream;
+        const tracks = stream.getTracks();
+        tracks.forEach((track) => track.stop()); // Stop the video stream
+      }
+    }
+  };
+
+  return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {/* Car Plate Input */}
@@ -169,7 +163,6 @@ export const DriverAssignForm = ({
           )}
         />
 
-        {/* Conditional Input Field for PICKUP Task */}
         {formType === "PICKUP" && (
           <FormField
             control={form.control}
@@ -203,7 +196,15 @@ export const DriverAssignForm = ({
           />
         )}
 
-        {/* Camera Preview and Capture */}
+        {/* Button to open the camera and capture the image */}
+        <Button type="button" onClick={startCamera}>
+          Open Camera
+        </Button>
+        <Button type="button" onClick={captureImage}>
+          Capture Front Image
+        </Button>
+
+        {/* Video Feed (Camera Preview) */}
         <div>
           <video
             ref={videoRef}
@@ -215,39 +216,43 @@ export const DriverAssignForm = ({
           />
         </div>
 
+        {/* Canvas to draw the captured image */}
         <canvas ref={canvasRef} style={{ display: "none" }} />
 
-        {/* Image Capturing Buttons */}
-        <Button type="button" onClick={() => captureImage("front")}>
-          Capture Front Image
-        </Button>
-        <Button type="button" onClick={() => captureImage("side")}>
-          Capture Side Image
-        </Button>
-        <Button type="button" onClick={() => captureImage("back")}>
-          Capture Back Image
-        </Button>
-        <Button type="button" onClick={() => captureImage("odometer")}>
-          Capture Odometer Image
-        </Button>
-
-        {/* Display the Captured Images */}
-        {frontImg && <img src={frontImg} alt="Front Image" width={200} />}
-        {sideImg && <img src={sideImg} alt="Side Image" width={200} />}
-        {backImg && <img src={backImg} alt="Back Image" width={200} />}
-        {odometerImg && (
-          <img src={odometerImg} alt="Odometer Image" width={200} />
+        {/* Display the captured front image */}
+        {frontImg && (
+          <Image
+            src={frontImg}
+            alt="Captured Front Image"
+            height={200}
+            width={200}
+          />
         )}
+
+        {/* Images Input Field */}
+        <FormField
+          control={form.control}
+          name="images"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Images</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter image URL or file"
+                  {...field}
+                  disabled={isSubmitting}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Submit Button */}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? <Spinner /> : "Continue"}
+          {isSubmitting ? <Spinner /> : "Save"}
         </Button>
       </form>
     </Form>
-  ) : (
-    <div>
-      <p>Driver is not assigned yet. Please assign the task first.</p>
-    </div>
   );
 };
