@@ -1,19 +1,8 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { getShowrooms } from "@/actions/showroom-action";
 import { createUser } from "@/actions/user-action";
 import { Spinner } from "@/components/spinner";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -23,36 +12,22 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { userExtendedSchema } from "@/schema/user-schema";
-import { Showroom } from "@/types";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Role } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { z } from "zod";
 
 export const UserForm = () => {
-  const [showrooms, setShowrooms] = useState<Showroom[] | []>([]);
-  const [isFormReady, setIsFormReady] = useState<boolean>(false);
-
-  useEffect(() => {
-    const fetchShowrooms = async () => {
-      try {
-        const res = await getShowrooms();
-        if (res.data && res.status === 200) {
-          setShowrooms(res.data);
-          setIsFormReady(true);
-        } else {
-          toast.error(res.message);
-        }
-      } catch (error) {
-        console.log(error);
-        toast.error("Failed to fetch showrooms!");
-      }
-    };
-
-    fetchShowrooms();
-  }, []);
-
   // Use userExtendedSchema for form validation
   const form = useForm<z.infer<typeof userExtendedSchema>>({
     resolver: zodResolver(userExtendedSchema),
@@ -60,7 +35,7 @@ export const UserForm = () => {
       name: "",
       email: "",
       phone: "",
-      role: Role.USER,
+      role: Role.DRIVER,
       showroomId: "",
       employeeId: "",
     },
@@ -90,10 +65,6 @@ export const UserForm = () => {
       console.error("Error during user creation:", error);
       toast.error("Error during user creation!");
     }
-  }
-
-  if (!isFormReady) {
-    return <Spinner />;
   }
 
   return (
@@ -171,46 +142,13 @@ export const UserForm = () => {
                 </FormControl>
                 <SelectContent>
                   <SelectItem value={Role.ADMIN}>Admin</SelectItem>
-                  <SelectItem value={Role.MANAGER}>Manager</SelectItem>
                   <SelectItem value={Role.DRIVER}>Driver</SelectItem>
-                  <SelectItem value={Role.USER}>User</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        {(role === Role.DRIVER || role === Role.MANAGER) && (
-          <FormField
-            control={form.control}
-            name="showroomId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Showroom</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={isSubmitting}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a showroom" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {showrooms?.map((showroom) => (
-                      <SelectItem key={showroom.id} value={`${showroom.id}`}>
-                        {showroom.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
 
         {role === Role.DRIVER && (
           <FormField

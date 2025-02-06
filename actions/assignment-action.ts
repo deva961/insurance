@@ -1,8 +1,9 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { assignmentSchema } from "@/schema/assignment-schema";
-import { Role, Status } from "@prisma/client";
+import { assignmentSchema, stepFormSchema } from "@/schema/assignment-schema";
+import { DriverStatus, Role, Status } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export const getAssignments = async () => {
@@ -14,7 +15,6 @@ export const getAssignments = async () => {
             user: true,
           },
         },
-        manager: true,
       },
     });
 
@@ -33,40 +33,21 @@ export const getAssignments = async () => {
 };
 
 // getAssignments function
-export const getAssignmentsForDriver = async (
-  driverId: string,
-  role: string
-) => {
+export const getAssignmentsForDriver = async (driverId: string) => {
   try {
-    let assignments;
-
-    if (role === Role.ADMIN) {
-      assignments = await db.assignment.findMany({
-        include: {
-          driver: {
-            include: {
-              user: true,
-            },
+    const assignments = await db.assignment.findFirst({
+      where: {
+        driverId,
+        status: { not: Status.COMPLETED },
+      },
+      include: {
+        driver: {
+          include: {
+            user: true,
           },
-          manager: true,
         },
-      });
-    } else if (role === Role.DRIVER) {
-      assignments = await db.assignment.findMany({
-        where: {
-          driverId,
-          status: { not: Status.COMPLETED },
-        },
-        include: {
-          driver: {
-            include: {
-              user: true,
-            },
-          },
-          manager: true,
-        },
-      });
-    }
+      },
+    });
 
     return {
       data: assignments,
@@ -89,43 +70,63 @@ export const createAssignment = async (
   const validatedFields = assignmentSchema.safeParse(values);
 
   if (!validatedFields.success) {
+    // If validation fails, return with the validation error messages
     return {
       data: [],
-      message: "Please fill all the fields correctly!",
+      message: validatedFields.error.errors
+        .map((err) => err.message)
+        .join(", "),
       status: 400,
     };
   }
 
-  const { driverId, carPlate, pickupDate } = validatedFields.data;
+  // Extract validated values
+  const { driverId, customerName, customerPhone, customerAddress, amount } =
+    validatedFields.data;
+
+  const existingAssignment = await db.assignment.findFirst({
+    where: {
+      driverId,
+      status: Status.PENDING,
+    },
+  });
+
+  // If an assignment already exists, return an error message
+  if (existingAssignment) {
+    return {
+      data: [],
+      message: "An assignment for this customer already exists.",
+      status: 400,
+    };
+  }
 
   try {
-    // Check if a driver already has an active assignment
-    const existingAssignment = await db.assignment.findFirst({
-      where: { driverId },
-    });
-
-    if (existingAssignment && existingAssignment.status !== Status.COMPLETED) {
-      return {
-        data: [],
-        message: "Driver already has an active assignment!",
-        status: 400,
-      };
-    }
-
-    const newAssignment = await db.assignment.create({
-      data: {
-        driverId,
-        carPlate,
-        pickupDate,
-      },
-    });
-
+    const [newAssignment, updateDriverStatus] = await db.$transaction([
+      db.assignment.create({
+        data: {
+          driverId,
+          customerName,
+          customerPhone,
+          customerAddress,
+          amount,
+          status: Status.PENDING,
+        },
+      }),
+      db.driver.update({
+        where: { id: driverId },
+        data: {
+          status: DriverStatus.BUSY,
+        },
+      }),
+    ]);
+    revalidatePath("/records");
     return {
       status: 200,
       message: "Assignment created successfully",
       data: newAssignment,
     };
   } catch (error) {
+    // Log and return the error
     console.error("Error creating assignment:", error);
 
     return {
@@ -139,10 +140,9 @@ export const createAssignment = async (
 export const updateAssignment = async (
   id: string,
   driverId: string,
-  values: z.infer<typeof assignmentSchema>
+  values: z.infer<typeof stepFormSchema>
 ) => {
-  // Validate the fields using the schema
-  const validatedFields = assignmentSchema.safeParse(values);
+  const validatedFields = stepFormSchema.safeParse(values);
 
   if (!validatedFields.success) {
     return {
@@ -156,13 +156,11 @@ export const updateAssignment = async (
     const updatedAssignment = await db.assignment.update({
       where: { id, driverId },
       data: {
-        transportationType: values.transportType,
+        amount: values.amount,
         status: values.status,
-        type: values.type,
-        images: values.images,
       },
     });
-
+    revalidatePath("/records");
     return {
       status: 200,
       message: "Assignment updated successfully",

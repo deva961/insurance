@@ -51,8 +51,6 @@ export const columns: ColumnDef<UserData>[] = [
           variant="outline"
           className={cn(
             role === "ADMIN" && "bg-sky-500/10  text-sky-800 ",
-            role === "USER" && "bg-green-500/10 text-green-800",
-            role === "MANAGER" && "bg-yellow-500/10 text-yellow-800",
             role === "DRIVER" && "bg-fuchsia-500/10 text-fuchsia-800"
           )}
         >

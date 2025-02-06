@@ -4,7 +4,7 @@ export const publicRoutes = [
   "/forgot-password",
 ];
 
-export const apiAuthPrefix = "/api/auth";
+export const apiAuthPrefix = "/api";
 
 export const LOGGED_IN = "/";
 export const NOT_LOGGED_IN = "/auth/login";

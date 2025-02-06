@@ -1,8 +1,5 @@
 "use client";
 
-import { Calendar } from "@/components/ui/calendar";
-
-import { DriverData, getDrivers } from "@/actions/driver-action";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,56 +10,32 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { format } from "date-fns";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { assignmentSchema } from "@/schema/assignment-schema";
 import { createAssignment } from "@/actions/assignment-action";
+import { assignmentSchema } from "@/schema/assignment-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Status } from "@prisma/client";
+
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { z } from "zod";
 
-export const AssignForm = () => {
-  const [drivers, setDrivers] = useState<DriverData[]>([]);
-
-  useEffect(() => {
-    const fetchDrivers = async () => {
-      const res = await getDrivers();
-      if (res.data && res.status === 200) {
-        setDrivers(res.data);
-      }
-    };
-
-    fetchDrivers();
-  }, []);
-
+export const AssignForm = ({ driverId }: { driverId: string }) => {
   const form = useForm<z.infer<typeof assignmentSchema>>({
     resolver: zodResolver(assignmentSchema),
     defaultValues: {
-      carPlate: "",
-      pickupDate: new Date(),
-      driverId: "",
+      driverId: driverId,
+      customerName: "",
+      customerAddress: "",
+      customerPhone: "",
+      amount: "0",
+      status: Status.ASSIGNED,
     },
   });
 
   const { isSubmitting } = form.formState;
 
-  const onSubmit = async (values: z.infer<typeof assignmentSchema>) => {
+  const submit = async (values: z.infer<typeof assignmentSchema>) => {
     try {
       const res = await createAssignment(values);
 
@@ -78,18 +51,21 @@ export const AssignForm = () => {
     }
   };
 
+  if (!driverId) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Car Plate Field */}
+      <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="carPlate"
+          name="customerName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Car Plate</FormLabel>
+              <FormLabel>Customer Name</FormLabel>
               <FormControl>
-                <Input placeholder="TS21G9732" {...field} />
+                <Input placeholder="Rahul" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -98,41 +74,13 @@ export const AssignForm = () => {
 
         <FormField
           control={form.control}
-          name="pickupDate"
+          name="customerPhone"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Pickup Date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                      date.getTime() < new Date().setHours(0, 0, 0, 0)
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+            <FormItem>
+              <FormLabel>Customer Phone</FormLabel>
+              <FormControl>
+                <Input placeholder="9848898488" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -140,32 +88,15 @@ export const AssignForm = () => {
 
         <FormField
           control={form.control}
-          name="driverId"
+          name="customerAddress"
           render={({ field }) => (
-            <FormItem className="flex flex-col w-full">
-              <FormLabel>Driver</FormLabel>
+            <FormItem>
+              <FormLabel>Customer Address</FormLabel>
               <FormControl>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Driver" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {drivers.length === 0 && (
-                      <SelectItem value="none" disabled>
-                        No Drivers
-                      </SelectItem>
-                    )}
-                    {drivers.map((driver) => (
-                      <SelectItem key={driver.id} value={driver.id}>
-                        {driver.user.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  placeholder="Saboo Towers,6-3-905, Raj Bhavan Rd,Somajiguda"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -174,7 +105,7 @@ export const AssignForm = () => {
 
         {/* Submit Button */}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save"}
+          {isSubmitting ? "Starting..." : "Start"}
         </Button>
       </form>
     </Form>

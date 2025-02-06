@@ -15,9 +15,7 @@ datasource db {
 
 enum Role {
   ADMIN
-  MANAGER
   DRIVER
-  USER
 }
 
 enum Status {
@@ -26,67 +24,30 @@ enum Status {
   COMPLETED
 }
 
+enum DriverStatus {
+  AVAILABLE
+  BUSY
+}
+
 model User {
-  id       String   @id @default(uuid())
+  id       String  @id @default(uuid())
   name     String
-  phone    String   @unique
+  phone    String  @unique
   email    String?
   password String
-  role     Role     @default(USER)
-  manager  Manager?
+  role     Role    @default(DRIVER)
   driver   Driver?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Category {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  showrooms Showroom[] // One category can have many showrooms
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Showroom {
-  id         String   @id @default(uuid())
-  name       String   @unique
-  location   String?
-  categoryId String
-  managerId  String?  @unique
-  drivers    Driver[] // One showroom can have many drivers
-
-  category Category @relation(fields: [categoryId], references: [id]) // Relation to Category
-  manager  Manager? @relation // No need for fields and references here
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Manager {
-  id         String   @id @default(uuid())
-  userId     String   @unique
-  showroom   Showroom @relation(fields: [showroomId], references: [id]) // Specify relation here
-  showroomId String   @unique
-
-  user User @relation(fields: [userId], references: [id])
-
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  Assignment Assignment[]
-}
-
 model Driver {
-  id         String  @id @default(uuid())
-  userId     String  @unique
-  employeeId String  @unique
-  license    String
-  licenseImg String?
-  showroomId String?
-
-  showroom Showroom? @relation(fields: [showroomId], references: [id])
-  user     User      @relation(fields: [userId], references: [id])
+  id         String       @id @default(uuid())
+  userId     String       @unique
+  employeeId String       @unique
+  status     DriverStatus @default(AVAILABLE)
+  user       User         @relation(fields: [userId], references: [id])
 
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
@@ -94,19 +55,26 @@ model Driver {
 }
 
 model Assignment {
-  id                 String   @id @default(uuid())
-  driverId           String
-  managerId          String?
-  showroomId         String?
-  pickupDate         DateTime
-  carPlate           String
-  type               String?
-  transportationType String?
-  images             String[]
-  status             Status   @default(ASSIGNED)
+  id              String @id @default(uuid())
+  driverId        String
+  customerName    String
+  customerPhone   String
+  customerAddress String
+  amount          String
+  status          Status @default(ASSIGNED)
 
   driver    Driver   @relation(fields: [driverId], references: [id])
-  manager   Manager? @relation(fields: [managerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SabooLanding {
+  id      String  @id @default(uuid())
+  name    String
+  phone   String
+  email   String?
+  message String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

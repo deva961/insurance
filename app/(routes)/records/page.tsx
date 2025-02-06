@@ -1,93 +1,134 @@
-import {
-  getAssignments,
-  getAssignmentsForDriver,
-} from "@/actions/assignment-action";
+import { getAssignmentsForDriver } from "@/actions/assignment-action";
 import { getDriverById } from "@/actions/driver-action";
+import { AssignForm } from "@/app/_components/forms/assign-form";
+import { AssignFormStep } from "@/app/_components/forms/assign-step2-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { auth } from "@/lib/auth";
-import { Role } from "@prisma/client";
-import { format } from "date-fns";
-import Link from "next/link";
+import { db } from "@/lib/db";
+import { DriverStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 const Records = async () => {
   const session = await auth();
 
-  if (!session?.user?.id || !session?.user?.role) {
-    return <div>Please log in to view assignments.</div>;
+  // If the session does not exist, redirect to the sign-in page
+  if (!session) {
+    redirect("/auth/sign-in");
+    return null; // Ensures rendering stops here and doesn't proceed
   }
 
-  let records;
+  const userId = session.user.id;
 
-  // If the user is a DRIVER, fetch assignments for the driver
-  if (session.user.role === Role.DRIVER) {
-    const driver = await getDriverById(session.user.id);
+  try {
+    // Fetch the driver details by user ID
+    const driver = await getDriverById(userId as string);
 
+    // If no driver is found, return an error message
     if (!driver) {
-      return <>No driver found</>;
+      return (
+        <div>
+          <p>Driver not found!</p>
+        </div>
+      );
     }
 
-    const response = await getAssignmentsForDriver(
-      driver.id,
-      session.user.role
-    );
+    // Fetch the existing assignment for the driver
+    const existingAssignment = await getAssignmentsForDriver(driver.id);
 
-    // If no records are found for the driver
-    if (!response.data || response.data.length === 0) {
-      return <div>No assignments found.</div>;
-    }
-
-    records = response.data; // Set records for the driver
-  }
-
-  // If the user is an ADMIN, fetch all assignments
-  if (session.user.role === Role.ADMIN) {
-    const response = await getAssignments();
-
-    // If no records are found for admin
-    if (!response.data || response.data.length === 0) {
-      return <div>No assignments found.</div>;
-    }
-
-    records = response.data;
-  }
-
-  if (!records) {
-    return <>No records</>;
-  }
-
-  return (
-    <div className="grid grid-cols-4 gap-5">
-      {records.map((record, index) => (
-        <Card key={index}>
+    // Check if the driver is busy and no assignment exists
+    if (driver.status === DriverStatus.BUSY && !existingAssignment?.data) {
+      return (
+        <Card className="max-w-screen-xl">
           <CardHeader>
-            <CardTitle>Assignment {index + 1}</CardTitle>
+            <CardTitle>Insurance</CardTitle>
+            <CardDescription>Collect the amount from customer.</CardDescription>
           </CardHeader>
           <CardContent>
-            <p>Date: {format(new Date(record.pickupDate), "PPP")}</p>
-            <p>Car Plate: {record.carPlate}</p>
-            <p>Status: {record.status}</p>
-            <p>Driver Name: {record.driver.user.name}</p>
+            <div className="space-y-5 mt-10">
+              <form
+                action={async () => {
+                  "use server";
+                  await db.driver.update({
+                    where: {
+                      id: driver.id,
+                    },
+                    data: {
+                      status: DriverStatus.AVAILABLE,
+                    },
+                  });
+                  revalidatePath("/records");
+                }}
+              >
+                <Button
+                  variant={"destructive"}
+                  type="submit"
+                  className="w-full"
+                >
+                  Complete for day
+                </Button>
+              </form>
+
+              <div className="space-x-5 flex items-center overflow-hidden justify-center">
+                <Separator />
+                <span>OR</span>
+                <Separator />
+              </div>
+            </div>
+            <AssignForm driverId={driver.id} />
           </CardContent>
-          <CardFooter>
-            {session.user.role === Role.DRIVER && (
-              <Button asChild>
-                <Link href={`/records/driver/${record.id}`} className="w-full">
-                  Continue
-                </Link>
-              </Button>
-            )}
-          </CardFooter>
         </Card>
-      ))}
-    </div>
-  );
+      );
+    }
+
+    // Check if there is an existing assignment for the driver
+    if (existingAssignment?.data && !Array.isArray(existingAssignment.data)) {
+      return (
+        <Card className="max-w-screen-xl">
+          <CardHeader>
+            <CardTitle>Insurance</CardTitle>
+            <CardDescription>Collect the amount from customer.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AssignFormStep
+              formId={existingAssignment.data.id}
+              driverId={driver.id}
+            />
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // If no assignment exists and the driver is available, show the form to create a new assignment
+    if (!existingAssignment?.data && driver.status === DriverStatus.AVAILABLE) {
+      return (
+        <Card className="max-w-screen-xl">
+          <CardHeader>
+            <CardTitle>Insurance</CardTitle>
+            <CardDescription>Collect the amount from customer.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AssignForm driverId={driver.id} />
+          </CardContent>
+        </Card>
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching driver:", error);
+    return (
+      <div>
+        <p>Something went wrong. Please try again later.</p>
+      </div>
+    );
+  }
 };
 
 export default Records;

@@ -5,16 +5,16 @@ import { Role } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  const password = await hash("Rajesh4459", 10);
+  const password = await hash("Broaddcast@123", 10);
 
   const existingUser = await prisma.user.findUnique({
-    where: { phone: "9618544459" },
+    where: { phone: "9848898488" },
   });
 
   if (existingUser) {
     await prisma.user.update({
       where: {
-        phone: "9618544459",
+        phone: "9848898488",
       },
       data: {
         password,
@@ -27,7 +27,7 @@ async function main() {
     await prisma.user.create({
       data: {
         name: "Admin",
-        phone: "9618544459",
+        phone: "9848898488",
         role: Role.ADMIN,
         password,
       },

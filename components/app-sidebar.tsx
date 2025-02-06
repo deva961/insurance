@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -13,18 +12,12 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import {
-  Calendar,
-  Grid2X2,
-  Inbox,
-  Search,
-  Users,
-  Warehouse,
-} from "lucide-react";
+import { Role } from "@prisma/client";
+import { Calendar, Grid2X2, Search, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { Role } from "@prisma/client";
+import * as React from "react";
 import { Skeleton } from "./ui/skeleton";
 
 const items = [
@@ -32,30 +25,19 @@ const items = [
     title: "Home",
     url: "/",
     icon: Grid2X2,
-  },
-  {
-    title: "Channels",
-    url: "/category",
-    icon: Inbox,
-    role: [Role.ADMIN],
-  },
-  {
-    title: "Locations",
-    url: "/showrooms",
-    icon: Warehouse,
     role: [Role.ADMIN],
   },
   {
     title: "Users",
     url: "/users",
     icon: Users,
-    role: [Role.ADMIN, Role.MANAGER],
+    role: [Role.ADMIN],
   },
   {
     title: "Assign",
     url: "/assign",
     icon: Calendar,
-    role: [Role.MANAGER, Role.ADMIN],
+    role: [Role.ADMIN],
   },
   {
     title: "Records",

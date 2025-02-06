@@ -28,7 +28,7 @@ export const RegisterForm = () => {
       phone: "",
       email: "",
       password: "",
-      role: Role.USER,
+      role: Role.ADMIN,
     },
   });
 

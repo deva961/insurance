@@ -2,16 +2,31 @@ import { Status } from "@prisma/client";
 import { z } from "zod";
 
 export const assignmentSchema = z.object({
-  carPlate: z.string().min(2, {
-    message: "Plate must be at least 2 characters.",
+  driverId: z.string(),
+  customerName: z.string().min(4, {
+    message: "Please enter customer name",
   }),
-  driverId: z.string().min(2, {
-    message: "Please choose driver",
+  customerPhone: z
+    .string()
+    .min(10, {
+      message: "Please enter a valid phone number",
+    })
+    .max(10, {
+      message: "Please enter a valid phone number",
+    }),
+  customerAddress: z.string().min(4, {
+    message: "Please enter customer address",
   }),
-  pickupDate: z.date(),
+  amount: z.string().min(1, {
+    message: "Please enter a amount",
+  }),
   status: z.enum([Status.ASSIGNED, Status.PENDING, Status.COMPLETED]),
-  transportType: z.string().optional(),
-  images: z.array(z.string()).optional(),
-  type: z.string().optional(),
-  finalImage: z.string().optional(),
+});
+
+export const stepFormSchema = z.object({
+  driverId: z.string(),
+  amount: z.string().min(2, {
+    message: "Please enter a valid amount!",
+  }),
+  status: z.enum([Status.COMPLETED]),
 });
