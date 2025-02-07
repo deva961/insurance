@@ -22,11 +22,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Plus, Trash } from "lucide-react";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 import { DataTablePagination } from "../_components/pagination";
 import { DataTableViewOptions } from "../_components/view-options";
-import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -42,7 +42,6 @@ export function DataTable<TData, TValue>({
   data,
   filterTitle,
   filterKey,
-  disabled,
   createUrl,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -76,7 +75,7 @@ export function DataTable<TData, TValue>({
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder={`Filter ${filterTitle}...`}
+          placeholder={`Search ${filterTitle}...`}
           value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn(filterKey)?.setFilterValue(event.target.value)
@@ -96,17 +95,17 @@ export function DataTable<TData, TValue>({
               </Link>
             </Button>
           )}
-          {table.getFilteredSelectedRowModel().rows.length > 0 && (
+          {/* {table.getFilteredSelectedRowModel().rows.length > 0 && (
             <Button
               disabled={disabled}
               size={"sm"}
               className="ml-auto"
               variant={"outline"}
             >
-              <Trash className="mr-1.5 size-3.5 text-sm" /> Delete&nbsp;
+              <Trash className="size-3.5 text-sm" /> Delete
               <span>({table.getFilteredSelectedRowModel().rows.length})</span>
             </Button>
-          )}
+          )} */}
           <DataTableViewOptions table={table} />
         </div>
       </div>

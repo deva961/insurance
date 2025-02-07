@@ -142,7 +142,7 @@ export const UserForm = () => {
                 </FormControl>
                 <SelectContent>
                   <SelectItem value={Role.ADMIN}>Admin</SelectItem>
-                  <SelectItem value={Role.DRIVER}>Driver</SelectItem>
+                  <SelectItem value={Role.DRIVER}>Agent</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

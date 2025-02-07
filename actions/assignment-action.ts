@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { assignmentSchema, stepFormSchema } from "@/schema/assignment-schema";
-import { DriverStatus, Role, Status } from "@prisma/client";
+import { DriverStatus, Status } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 

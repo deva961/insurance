@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import {
   SidebarInset,
   SidebarProvider,
@@ -21,10 +22,9 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="flex border-b h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-            <div className="flex items-center gap-2 px-4">
-              <SidebarTrigger className="-ml-1" />
-            </div>
+          <header className="px-5 flex justify-between border-b h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+            <SidebarTrigger />
+            <ThemeSwitcher />
           </header>
           <div className="m-5">{children}</div>
         </SidebarInset>

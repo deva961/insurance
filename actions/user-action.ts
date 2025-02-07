@@ -87,7 +87,7 @@ export const createUser = async (
     });
     if (verifyEmployeeId) {
       return {
-        message: "Driver with this employeeId already exists",
+        message: "Agent with this employeeId already exists",
         status: 400,
       };
     }
@@ -131,7 +131,7 @@ export const createUser = async (
 
       // If the role is DRIVER, create driver and associate with showroom
       if (role === Role.DRIVER && employeeId) {
-        const driver = await prisma.driver.create({
+        await prisma.driver.create({
           data: {
             userId: user.id,
             employeeId: employeeId,

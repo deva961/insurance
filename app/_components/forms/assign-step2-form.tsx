@@ -71,7 +71,7 @@ export const AssignFormStep = ({
 
         {/* Submit Button */}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Completing..." : "Complete"}
+          {isSubmitting ? "Collecting..." : "Collect"}
         </Button>
       </form>
     </Form>

@@ -54,7 +54,7 @@ export const columns: ColumnDef<UserData>[] = [
             role === "DRIVER" && "bg-fuchsia-500/10 text-fuchsia-800"
           )}
         >
-          {role}
+          {role === "DRIVER" ? "AGENT" : role}
         </Badge>
       );
     },

@@ -13,14 +13,19 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { Role } from "@prisma/client";
-import { Calendar, Grid2X2, Search, Users } from "lucide-react";
+import { Grid2X2, Search, Users } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 import { Skeleton } from "./ui/skeleton";
 
-const items = [
+const items: {
+  title: string;
+  url: string;
+  icon: React.ComponentType;
+  role: Role[];
+}[] = [
   {
     title: "Home",
     url: "/",
@@ -34,21 +39,22 @@ const items = [
     role: [Role.ADMIN],
   },
   {
-    title: "Assign",
-    url: "/assign",
-    icon: Calendar,
-    role: [Role.ADMIN],
-  },
-  {
     title: "Records",
     url: "/records",
     icon: Search,
+    role: [Role.ADMIN],
+  },
+  {
+    title: "Insurance",
+    url: "/insurance",
+    icon: Search,
+    role: [Role.DRIVER],
   },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
-  const role = session?.user.role;
+  const role: Role = session?.user.role;
 
   if (!session || !session.user) {
     return (
@@ -66,11 +72,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Filter sidebar items based on user role
   const filteredItems = items.filter((item) => {
-    // If no role is specified for the route, allow access
     if (!item.role) {
       return true;
     }
-    // Check if the user's role matches any of the required roles for this route
     return item.role.includes(role);
   });
 
