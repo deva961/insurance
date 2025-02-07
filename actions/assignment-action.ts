@@ -9,6 +9,9 @@ import { z } from "zod";
 export const getAssignments = async () => {
   try {
     const assignments = await db.assignment.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
       include: {
         driver: {
           include: {
