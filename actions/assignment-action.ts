@@ -27,6 +27,7 @@ export const getAssignments = async () => {
       status: 200,
     };
   } catch (error) {
+    console.log(error);
     return {
       data: [],
       message: "Failed to fetch assignment!",
@@ -58,6 +59,7 @@ export const getAssignmentsForDriver = async (driverId: string) => {
       status: 200,
     };
   } catch (error) {
+    console.log(error);
     return {
       data: [],
       message: "Failed to fetch assignment!",
@@ -84,8 +86,14 @@ export const createAssignment = async (
   }
 
   // Extract validated values
-  const { driverId, customerName, customerPhone, customerAddress, amount } =
-    validatedFields.data;
+  const {
+    driverId,
+    customerName,
+    customerPhone,
+    amount,
+    startAddress,
+    startTime,
+  } = validatedFields.data;
 
   const existingAssignment = await db.assignment.findFirst({
     where: {
@@ -110,8 +118,9 @@ export const createAssignment = async (
           driverId,
           customerName,
           customerPhone,
-          customerAddress,
           amount,
+          startAddress,
+          startTime,
           status: Status.PENDING,
         },
       }),
@@ -122,6 +131,7 @@ export const createAssignment = async (
         },
       }),
     ]);
+    console.log(updateDriverStatus);
     revalidatePath("/records");
     return {
       status: 200,
@@ -161,6 +171,8 @@ export const updateAssignment = async (
       data: {
         amount: values.amount,
         status: values.status,
+        collectedAddress: values.collectedAddress,
+        collectedTime: values.collectedTime,
       },
     });
     revalidatePath("/records");

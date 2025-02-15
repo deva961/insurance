@@ -1,5 +1,6 @@
 "use client";
 
+import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -35,6 +36,7 @@ interface DataTableProps<TData, TValue> {
   filterKey: string;
   disabled: boolean;
   createUrl?: string;
+  isExportEnabled?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -43,6 +45,7 @@ export function DataTable<TData, TValue>({
   filterTitle,
   filterKey,
   createUrl,
+  isExportEnabled = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -71,17 +74,63 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  //export funciton
+  const handleExport = () => {
+    // Define custom headers, ensure driver.user.name is correctly mapped
+    const customHeaders: Record<string, string> = {
+      customerName: "Customer Name",
+      customerPhone: "Customer Phone",
+      amount: "Amount",
+      startAddress: "Start Address",
+      collectedAddress: "Collected Address",
+      "driver.user.name": "Agent",
+    };
+
+    // Get the table data, skipping the "select" column and applying custom headers
+    const tableData = table.getRowModel().rows.map((row) => {
+      const rowData: Record<string, string | number | boolean | unknown> = {};
+
+      row.getVisibleCells().forEach((cell) => {
+        // Skip the "select" column
+        if (cell.column.id !== "select") {
+          // Map column id to custom header name
+          const header = customHeaders[cell.column.id] || cell.column.id;
+          rowData[header] = cell.getValue();
+        }
+      });
+
+      return rowData;
+    });
+
+    // Create the worksheet with the modified data
+    const ws = XLSX.utils.json_to_sheet(tableData);
+
+    // Create a new workbook and add the worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Records");
+
+    // Write the workbook to a file
+    XLSX.writeFile(wb, "records.xlsx");
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
-        <Input
-          placeholder={`Search ${filterTitle}...`}
-          value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn(filterKey)?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+        <div className="flex items-center space-x-2">
+          <Input
+            placeholder={`Search ${filterTitle}...`}
+            value={
+              (table.getColumn(filterKey)?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn(filterKey)?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          {isExportEnabled && (
+            <Button onClick={handleExport}>Export Excel</Button>
+          )}
+        </div>
         <div className="flex items-center space-x-2">
           {createUrl && (
             <Button

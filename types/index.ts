@@ -20,7 +20,6 @@ export interface Assignment {
   driverId: string;
   customerName: string | null;
   customerPhone: string | null;
-  customerAddress: string | null;
   amount: string;
   status: Status;
 }

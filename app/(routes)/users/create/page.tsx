@@ -12,7 +12,7 @@ const CreateUser = () => {
       <CardHeader>
         <CardTitle>Create User</CardTitle>
         <CardDescription>
-          Allows you to create a driver and admin.
+          Allows you to create an insurance agent and admin.
         </CardDescription>
       </CardHeader>
       <CardContent>

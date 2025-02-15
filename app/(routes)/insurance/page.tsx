@@ -16,6 +16,7 @@ import { db } from "@/lib/db";
 import { DriverStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { StartProcess } from "./start-process";
 
 const Records = async () => {
   const session = await auth();
@@ -23,7 +24,6 @@ const Records = async () => {
   // If the session does not exist, redirect to the sign-in page
   if (!session) {
     redirect("/auth/sign-in");
-    return null; // Ensures rendering stops here and doesn't proceed
   }
 
   const userId = session.user.id;
@@ -110,15 +110,9 @@ const Records = async () => {
     // If no assignment exists and the driver is available, show the form to create a new assignment
     if (!existingAssignment?.data && driver.status === DriverStatus.AVAILABLE) {
       return (
-        <Card className="max-w-screen-xl">
-          <CardHeader>
-            <CardTitle>Insurance</CardTitle>
-            <CardDescription>Collect the amount from customer.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AssignForm driverId={driver.id} />
-          </CardContent>
-        </Card>
+        <>
+          <StartProcess driverId={driver.id} />
+        </>
       );
     }
   } catch (error) {

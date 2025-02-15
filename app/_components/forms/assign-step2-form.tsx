@@ -18,6 +18,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useEffect } from "react";
+import { useGeolocation } from "@/hooks/use-geo-location";
 
 export const AssignFormStep = ({
   driverId,
@@ -31,9 +33,19 @@ export const AssignFormStep = ({
     defaultValues: {
       driverId: driverId,
       amount: "",
+      collectedAddress: "",
+      collectedTime: new Date().toISOString(),
       status: Status.COMPLETED,
     },
   });
+
+  const { address } = useGeolocation();
+
+  useEffect(() => {
+    if (address) {
+      form.setValue("collectedAddress", address);
+    }
+  }, [address, form]);
 
   const { isSubmitting, errors } = form.formState;
   console.log(errors);
@@ -68,6 +80,20 @@ export const AssignFormStep = ({
             </FormItem>
           )}
         />
+
+        {/* <FormField
+          control={form.control}
+          name="image"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image</FormLabel>
+              <FormControl>
+                <Input type="file" capture={"environment"} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
 
         {/* Submit Button */}
         <Button type="submit" disabled={isSubmitting}>

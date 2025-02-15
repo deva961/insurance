@@ -19,35 +19,47 @@ import { Status } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
+import { useGeolocation } from "@/hooks/use-geo-location";
+import { useEffect } from "react";
 
 export const AssignForm = ({ driverId }: { driverId: string }) => {
+  const { address } = useGeolocation();
+
   const form = useForm<z.infer<typeof assignmentSchema>>({
     resolver: zodResolver(assignmentSchema),
     defaultValues: {
       driverId: driverId,
       customerName: "",
-      customerAddress: "",
       customerPhone: "",
+      startAddress: "",
+      startTime: new Date().toISOString(),
       amount: "0",
       status: Status.ASSIGNED,
     },
   });
 
-  const { isSubmitting } = form.formState;
+  useEffect(() => {
+    if (address) {
+      form.setValue("startAddress", address);
+    }
+  }, [address, form]);
+
+  const { isSubmitting, errors } = form.formState;
+  console.log(errors);
 
   const submit = async (values: z.infer<typeof assignmentSchema>) => {
     try {
       const res = await createAssignment(values);
 
       if (res?.status === 200) {
-        toast.success("Assignment created successfully!");
+        toast.success("success");
         form.reset();
       } else {
-        toast.error(res?.message || "Failed to create assignment!");
+        toast.error(res?.message || "Failed to create!");
       }
     } catch (error) {
       console.error("Error in onSubmit:", error);
-      toast.error("Something went wrong while submitting the assignment.");
+      toast.error("Something went wrong while submitting .");
     }
   };
 
@@ -80,23 +92,6 @@ export const AssignForm = ({ driverId }: { driverId: string }) => {
               <FormLabel>Customer Phone</FormLabel>
               <FormControl>
                 <Input placeholder="9848898488" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="customerAddress"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Customer Address</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Saboo Towers,6-3-905, Raj Bhavan Rd,Somajiguda"
-                  {...field}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>

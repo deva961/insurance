@@ -55,13 +55,18 @@ model Driver {
 }
 
 model Assignment {
-  id              String @id @default(uuid())
-  driverId        String
-  customerName    String
-  customerPhone   String
-  customerAddress String
-  amount          String
-  status          Status @default(ASSIGNED)
+  id               String    @id @default(uuid())
+  driverId         String
+  customerName     String
+  customerPhone    String
+  amount           String
+  startAddress     String?
+  collectedAddress String?
+  endAddress       String?
+  startTime        DateTime?
+  collectedTime    DateTime?
+  endTime          DateTime?
+  status           Status    @default(ASSIGNED)
 
   driver    Driver   @relation(fields: [driverId], references: [id])
   createdAt DateTime @default(now())

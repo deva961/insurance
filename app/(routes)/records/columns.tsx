@@ -58,6 +58,20 @@ export const columns: ColumnDef<AssignmentData>[] = [
     },
   },
   {
+    accessorKey: "startAddress",
+    header: "Start Address",
+    cell: ({ row }) => {
+      return <div>{row.getValue("startAddress")}</div>;
+    },
+  },
+  {
+    accessorKey: "collectedAddress",
+    header: "Collect Address",
+    cell: ({ row }) => {
+      return <div>{row.getValue("collectedAddress")}</div>;
+    },
+  },
+  {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
