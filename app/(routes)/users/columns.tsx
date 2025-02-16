@@ -59,7 +59,14 @@ export const columns: ColumnDef<UserData>[] = [
       );
     },
   },
-
+  {
+    accessorFn: (row) => row.driver?.status,
+    header: "Status",
+    id: "driver.status",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("driver.status")}</div>
+    ),
+  },
   {
     accessorFn: (row) => row.driver?.employeeId,
     header: "Employee Id",

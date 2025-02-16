@@ -1,13 +1,10 @@
 import { getAssignments } from "@/actions/assignment-action";
 import { DataTable } from "@/app/_components/data-table";
 import { AssignmentData, columns } from "./columns";
-// import { GridView } from "@/components/grid-view";
 
-const Users = async () => {
+const Records = async () => {
   let data: AssignmentData[] = [];
   const res = await getAssignments();
-
-  console.log(res.data);
 
   if (res.status === 200) {
     data = res.data;
@@ -44,4 +41,4 @@ const Users = async () => {
   );
 };
 
-export default Users;
+export default Records;

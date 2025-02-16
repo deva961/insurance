@@ -95,7 +95,9 @@ export function DataTable<TData, TValue>({
       customerPhone: "Customer Phone",
       amount: "Amount",
       startAddress: "Start Address",
+      startTime: "Start Time",
       collectedAddress: "Collected Address",
+      collectedTime: "Collected Time",
       "driver.user.name": "Agent",
       status: "Status",
     };

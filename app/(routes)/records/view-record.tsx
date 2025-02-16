@@ -27,7 +27,7 @@ export const ViewRecord = ({ data }: { data: AssignmentData }) => {
       )}
       {data.customerPhone && (
         <div>
-          <Label htmlFor="customerName">Customer Phone</Label>
+          <Label htmlFor="customerPhone">Customer Phone</Label>
           <Input
             readOnly
             id="customerPhone"
@@ -40,7 +40,7 @@ export const ViewRecord = ({ data }: { data: AssignmentData }) => {
 
       {data.amount && (
         <div>
-          <Label htmlFor="customerName">Amount</Label>
+          <Label htmlFor="amount">Amount</Label>
           <Input
             readOnly
             id="amount"
@@ -53,7 +53,7 @@ export const ViewRecord = ({ data }: { data: AssignmentData }) => {
 
       {data.startAddress && (
         <div>
-          <Label htmlFor="customerName">Start Address</Label>
+          <Label htmlFor="startAddress">Start Address</Label>
           <Input
             readOnly
             id="startAddress"
@@ -64,15 +64,41 @@ export const ViewRecord = ({ data }: { data: AssignmentData }) => {
         </div>
       )}
 
+      {data.startTime && (
+        <div>
+          <Label htmlFor="startTime">Start Time</Label>
+          <Input
+            readOnly
+            id="startTime"
+            autoFocus={false}
+            className="focus:select-none"
+            value={new Date(data.startTime).toLocaleString()}
+          />
+        </div>
+      )}
+
       {data.collectedAddress && (
         <div>
-          <Label htmlFor="customerName">Collected Address</Label>
+          <Label htmlFor="collectedAddress">Collected Address</Label>
           <Input
             readOnly
             id="collectedAddress"
             autoFocus={false}
             className="focus:select-none"
             value={data.collectedAddress}
+          />
+        </div>
+      )}
+
+      {data.collectedTime && (
+        <div>
+          <Label htmlFor="collectedTime">Collected Time</Label>
+          <Input
+            readOnly
+            id="collectedTime"
+            autoFocus={false}
+            className="focus:select-none"
+            value={new Date(data.collectedTime).toLocaleString()}
           />
         </div>
       )}

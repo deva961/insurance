@@ -2,6 +2,8 @@
 
 import { db } from "@/lib/db";
 import { Driver, User } from "@/types";
+import { DriverStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export interface DriverData extends Driver {
   user: User;
@@ -61,4 +63,29 @@ export const getDriverById = async (id: string) => {
   });
 
   return driver;
+};
+
+export const updateDriverStatus = async (id: string, status: DriverStatus) => {
+  try {
+    await db.driver.update({
+      where: {
+        id,
+      },
+      data: {
+        status,
+      },
+    });
+    revalidatePath("/insurance");
+
+    return {
+      message: "success!",
+      status: 200, // OK
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      message: "Failed to update status!",
+      status: 500,
+    };
+  }
 };

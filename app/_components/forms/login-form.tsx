@@ -117,6 +117,13 @@ export const LoginForm = () => {
         <Button type="submit" disabled={isSubmitting} className="flex w-full">
           {isSubmitting ? <Spinner /> : "Login"}
         </Button>
+
+        <div className="mt-4 text-center text-sm">
+          Don&apos;t have an account? <br />
+          <a href="#" className="underline underline-offset-4">
+            Kindly reach out your head.
+          </a>
+        </div>
       </form>
     </Form>
   );

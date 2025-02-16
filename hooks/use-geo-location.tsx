@@ -10,8 +10,9 @@ export const useGeolocation = () => {
   const [location, setLocation] = useState<LocationProps | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hasDenied, setHasDenied] = useState<boolean>(false); // Track denial status
 
-  useEffect(() => {
+  const requestGeolocation = () => {
     if (typeof window !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -23,12 +24,23 @@ export const useGeolocation = () => {
           console.log(err);
           setError("Failed to retrieve geolocation.");
           toast.error("Failed to retrieve geolocation.");
+
+          if (err.code === err.PERMISSION_DENIED) {
+            setHasDenied(true); // Set denial flag to true
+            toast.error(
+              "You denied the geolocation request. You can try again."
+            );
+          }
         }
       );
     } else {
       setError("Geolocation is not supported by this browser.");
       toast.error("Geolocation is not supported by this browser.");
     }
+  };
+
+  useEffect(() => {
+    requestGeolocation();
   }, []);
 
   useEffect(() => {
@@ -68,5 +80,13 @@ export const useGeolocation = () => {
     }
   }, [location]);
 
-  return { address, error };
+  return {
+    address,
+    error,
+    hasDenied, // Provide information if the user denied geolocation
+    retryGeolocation: () => {
+      setHasDenied(false); // Reset denial flag
+      requestGeolocation(); // Retry geolocation request
+    },
+  };
 };

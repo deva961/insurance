@@ -27,6 +27,7 @@ enum Status {
 enum DriverStatus {
   AVAILABLE
   BUSY
+  OFFICE
 }
 
 model User {

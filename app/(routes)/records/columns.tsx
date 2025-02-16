@@ -75,12 +75,31 @@ export const columns: ColumnDef<AssignmentData>[] = [
     },
   },
   {
+    accessorKey: "startTime",
+    header: "Start Time",
+    cell: ({ row }) => {
+      const startTime: Date = row.getValue("startTime");
+      return <div>{startTime ? new Date(startTime).toLocaleString() : ""}</div>;
+    },
+  },
+  {
     accessorKey: "collectedAddress",
     header: "Collected Address",
     cell: ({ row }) => {
       return <div>{row.getValue("collectedAddress")}</div>;
     },
-    enableHiding: true,
+  },
+  {
+    accessorKey: "collectedTime",
+    header: "Collect Time",
+    cell: ({ row }) => {
+      const collectedTime: Date = row.getValue("collectedTime");
+      return (
+        <div>
+          {collectedTime ? new Date(collectedTime).toLocaleString() : ""}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "status",

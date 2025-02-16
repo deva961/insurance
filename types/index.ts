@@ -1,4 +1,4 @@
-import { Role, Status } from "@prisma/client";
+import { DriverStatus, Role, Status } from "@prisma/client";
 
 export interface User {
   id: string;
@@ -13,6 +13,7 @@ export interface Driver {
   id: string;
   userId: string;
   employeeId: string;
+  status: DriverStatus;
 }
 
 export interface Assignment {

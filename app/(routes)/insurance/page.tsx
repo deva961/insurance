@@ -1,7 +1,7 @@
 import { getAssignmentsForDriver } from "@/actions/assignment-action";
 import { getDriverById } from "@/actions/driver-action";
-import { AssignForm } from "@/app/_components/forms/assign-form";
 import { AssignFormStep } from "@/app/_components/forms/assign-step2-form";
+import { OptionForm } from "@/app/_components/option-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { DriverStatus } from "@prisma/client";
@@ -18,7 +17,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { StartProcess } from "./start-process";
 
-const Records = async () => {
+const Insurance = async () => {
   const session = await auth();
 
   // If the session does not exist, redirect to the sign-in page
@@ -46,46 +45,32 @@ const Records = async () => {
 
     // Check if the driver is busy and no assignment exists
     if (driver.status === DriverStatus.BUSY && !existingAssignment?.data) {
-      return (
-        <Card className="max-w-screen-xl">
-          <CardHeader>
-            <CardTitle>Insurance</CardTitle>
-            <CardDescription>Collect the amount from customer.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-5 mt-10">
-              <form
-                action={async () => {
-                  "use server";
-                  await db.driver.update({
-                    where: {
-                      id: driver.id,
-                    },
-                    data: {
-                      status: DriverStatus.AVAILABLE,
-                    },
-                  });
-                  revalidatePath("/insurance");
-                }}
-              >
-                <Button
-                  variant={"destructive"}
-                  type="submit"
-                  className="w-full"
-                >
-                  Go to Showroom
-                </Button>
-              </form>
+      return <OptionForm driverId={driver.id} />;
+    }
 
-              <div className="space-x-5 flex items-center overflow-hidden justify-center">
-                <Separator />
-                <span>OR</span>
-                <Separator />
-              </div>
-            </div>
-            <AssignForm driverId={driver.id} />
-          </CardContent>
-        </Card>
+    if (driver.status === DriverStatus.OFFICE && !existingAssignment?.data) {
+      return (
+        <form
+          action={async () => {
+            "use server";
+            await db.driver.update({
+              where: {
+                id: driver.id,
+              },
+              data: {
+                status: DriverStatus.AVAILABLE,
+              },
+            });
+            revalidatePath("/insurance");
+          }}
+        >
+          <Button
+            type="submit"
+            className="w-full bg-blue-600 rounded-full px-24 py-32"
+          >
+            Reached Office
+          </Button>
+        </form>
       );
     }
 
@@ -125,4 +110,4 @@ const Records = async () => {
   }
 };
 
-export default Records;
+export default Insurance;

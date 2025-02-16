@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { AssignForm } from "@/app/_components/forms/assign-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,15 +9,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AssignForm } from "@/app/_components/forms/assign-form";
+import { useState } from "react";
 
 export const StartProcess = ({ driverId }: { driverId: string }) => {
   const [start, setStart] = useState<boolean>(false);
+
   return (
     <>
       {!start && (
         <div className="flex min-h-[calc(100vh-160px)] items-center justify-center">
-          <Button onClick={() => setStart(true)}>Start Today</Button>
+          <Button
+            onClick={() => setStart(true)}
+            className="rounded-full px-24 py-32 bg-blue-600 text-xl"
+          >
+            Start Today
+          </Button>
         </div>
       )}
 

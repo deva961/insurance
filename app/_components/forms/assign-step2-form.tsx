@@ -152,25 +152,6 @@ export const AssignFormStep = ({
           )}
         </div>
 
-        {/* <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Image</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  onChange={handleFileChange}
-                  capture={"environment"}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
         {/* Submit Button */}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Collecting..." : "Collect"}

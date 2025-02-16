@@ -108,11 +108,8 @@ export const createUser = async (
   }
 
   const trimmedName = name.trim();
-  const trimmedPhone = phone.trim();
   const firstFourCharsOfName = trimmedName.toLowerCase().slice(0, 4);
-  const lastFourDigitsofPhone = trimmedPhone.slice(-4);
-  const password = firstFourCharsOfName + lastFourDigitsofPhone;
-  console.log("PASSWORD:", password);
+  const password = firstFourCharsOfName + employeeId;
   const hashedPassword = await hash(password, 10);
 
   const result = await db.$transaction(async (prisma) => {
@@ -146,6 +143,7 @@ export const createUser = async (
         status: 200, // OK
       };
     } catch (error) {
+      console.log(error);
       return {
         data: null,
         message: "Failed to create!",
