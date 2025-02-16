@@ -9,9 +9,12 @@ import { DriverData } from "@/actions/driver-action";
 import { Badge } from "@/components/ui/badge";
 import { Assignment } from "@/types";
 import { currencyFormatter } from "@/components/currency-formatter";
+import { ActionCell } from "@/components/action-cell";
 
 export interface AssignmentData extends Assignment {
   driver: DriverData;
+  startAddress: string | null;
+  collectedAddress: string | null;
 }
 
 export const columns: ColumnDef<AssignmentData>[] = [
@@ -20,10 +23,17 @@ export const columns: ColumnDef<AssignmentData>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllRowsSelected() ||
+          (table.getIsSomeRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value) => {
+          // Toggle all rows in the data (not just the current page)
+          if (value) {
+            table.toggleAllRowsSelected(true);
+          } else {
+            table.toggleAllRowsSelected(false);
+          }
+        }}
         aria-label="Select all"
       />
     ),
@@ -66,10 +76,11 @@ export const columns: ColumnDef<AssignmentData>[] = [
   },
   {
     accessorKey: "collectedAddress",
-    header: "Collect Address",
+    header: "Collected Address",
     cell: ({ row }) => {
       return <div>{row.getValue("collectedAddress")}</div>;
     },
+    enableHiding: true,
   },
   {
     accessorKey: "status",
@@ -94,6 +105,13 @@ export const columns: ColumnDef<AssignmentData>[] = [
     accessorFn: (row) => row.driver.user.name,
     header: "Agent",
     id: "driver.user.name",
-    cell: ({ row }) => <div>{row.getValue("driver.user.name")}</div>,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("driver.user.name")}</div>
+    ),
+  },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => <ActionCell data={row.original} />,
   },
 ];

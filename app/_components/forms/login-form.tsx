@@ -84,7 +84,7 @@ export const LoginForm = () => {
                 <Button
                   asChild
                   variant={"link"}
-                  className="text-black/70 text-xs sm:text-sm"
+                  className="text-muted-foreground text-xs sm:text-sm"
                 >
                   <Link href="/auth/forgot-password">
                     Forgot your password?

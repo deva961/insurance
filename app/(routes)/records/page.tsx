@@ -7,6 +7,8 @@ const Users = async () => {
   let data: AssignmentData[] = [];
   const res = await getAssignments();
 
+  console.log(res.data);
+
   if (res.status === 200) {
     data = res.data;
   }
@@ -30,6 +32,10 @@ const Users = async () => {
         columns={columns}
         data={data}
         isExportEnabled={true}
+        // initialColumnVisibility={{
+        //   collectedAddress: false,
+        //   startAddress: false,
+        // }}
       />
       {/* <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <GridView />

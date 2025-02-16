@@ -28,6 +28,12 @@ import Link from "next/link";
 import * as React from "react";
 import { DataTablePagination } from "../_components/pagination";
 import { DataTableViewOptions } from "../_components/view-options";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -46,13 +52,21 @@ export function DataTable<TData, TValue>({
   filterKey,
   createUrl,
   isExportEnabled = false,
-}: DataTableProps<TData, TValue>) {
+  initialColumnVisibility = {},
+}: DataTableProps<TData, TValue> & {
+  initialColumnVisibility?: VisibilityState;
+}) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+
+  // Initialize the column visibility state with initialColumnVisibility or default value
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({
+      ...initialColumnVisibility, // This will overwrite with passed prop if provided
+    });
+
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
@@ -74,9 +88,8 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  //export funciton
+  // Export function
   const handleExport = () => {
-    // Define custom headers, ensure driver.user.name is correctly mapped
     const customHeaders: Record<string, string> = {
       customerName: "Customer Name",
       customerPhone: "Customer Phone",
@@ -84,32 +97,23 @@ export function DataTable<TData, TValue>({
       startAddress: "Start Address",
       collectedAddress: "Collected Address",
       "driver.user.name": "Agent",
+      status: "Status",
     };
 
-    // Get the table data, skipping the "select" column and applying custom headers
-    const tableData = table.getRowModel().rows.map((row) => {
+    const tableData = table.getSelectedRowModel().rows.map((row) => {
       const rowData: Record<string, string | number | boolean | unknown> = {};
-
       row.getVisibleCells().forEach((cell) => {
-        // Skip the "select" column
-        if (cell.column.id !== "select") {
-          // Map column id to custom header name
+        if (cell.column.id !== "select" && cell.column.id !== "actions") {
           const header = customHeaders[cell.column.id] || cell.column.id;
           rowData[header] = cell.getValue();
         }
       });
-
       return rowData;
     });
 
-    // Create the worksheet with the modified data
     const ws = XLSX.utils.json_to_sheet(tableData);
-
-    // Create a new workbook and add the worksheet
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Records");
-
-    // Write the workbook to a file
     XLSX.writeFile(wb, "records.xlsx");
   };
 
@@ -125,10 +129,18 @@ export function DataTable<TData, TValue>({
             onChange={(event) =>
               table.getColumn(filterKey)?.setFilterValue(event.target.value)
             }
-            className="max-w-sm"
           />
           {isExportEnabled && (
-            <Button onClick={handleExport}>Export Excel</Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild onClick={handleExport}>
+                  <Button>Export Excel</Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Select to export</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
         <div className="flex items-center space-x-2">
@@ -144,17 +156,6 @@ export function DataTable<TData, TValue>({
               </Link>
             </Button>
           )}
-          {/* {table.getFilteredSelectedRowModel().rows.length > 0 && (
-            <Button
-              disabled={disabled}
-              size={"sm"}
-              className="ml-auto"
-              variant={"outline"}
-            >
-              <Trash className="size-3.5 text-sm" /> Delete
-              <span>({table.getFilteredSelectedRowModel().rows.length})</span>
-            </Button>
-          )} */}
           <DataTableViewOptions table={table} />
         </div>
       </div>

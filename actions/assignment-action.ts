@@ -171,6 +171,7 @@ export const updateAssignment = async (
       data: {
         amount: values.amount,
         status: values.status,
+        image: values.image,
         collectedAddress: values.collectedAddress,
         collectedTime: values.collectedTime,
       },

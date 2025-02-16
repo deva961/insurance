@@ -8,11 +8,14 @@ export const assignmentSchema = z.object({
   }),
   customerPhone: z
     .string()
+    .regex(/^(?:\+91|91)?[789]\d{9}$/, {
+      message: "Phone number must be a valid number.",
+    })
     .min(10, {
-      message: "Please enter a valid phone number",
+      message: "Phone number must be at least 10 characters.",
     })
     .max(10, {
-      message: "Please enter a valid phone number",
+      message: "Phone number must be at most 10 characters.",
     }),
   amount: z.string().min(1, {
     message: "Please enter a amount",
@@ -29,5 +32,6 @@ export const stepFormSchema = z.object({
   }),
   collectedAddress: z.string().optional(),
   collectedTime: z.string().datetime().optional(),
+  image: z.string().url(),
   status: z.enum([Status.COMPLETED]),
 });

@@ -66,6 +66,7 @@ model Assignment {
   startTime        DateTime?
   collectedTime    DateTime?
   endTime          DateTime?
+  image            String?
   status           Status    @default(ASSIGNED)
 
   driver    Driver   @relation(fields: [driverId], references: [id])
