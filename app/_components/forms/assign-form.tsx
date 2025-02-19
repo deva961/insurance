@@ -21,6 +21,13 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import { useGeolocation } from "@/hooks/use-geo-location";
 import { useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const AssignForm = ({ driverId }: { driverId: string }) => {
   const { address } = useGeolocation();
@@ -34,6 +41,7 @@ export const AssignForm = ({ driverId }: { driverId: string }) => {
       startAddress: "",
       startTime: new Date().toISOString(),
       amount: "0",
+      visitReason: "",
       status: Status.ASSIGNED,
     },
   });
@@ -99,8 +107,44 @@ export const AssignForm = ({ driverId }: { driverId: string }) => {
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="visitReason"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Reason for visit</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Reason" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Cash/Cheque Collection">
+                        Cash/Cheque Collection
+                      </SelectItem>
+                      <SelectItem value="Documents Submit Collection">
+                        Documents Submit Collection
+                      </SelectItem>
+                      <SelectItem value="Casual Meet">Casual Meet</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           {/* Submit Button */}
-          <Button type="submit" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex items-center justify-center mx-auto max-w-xs w-full"
+          >
             {isSubmitting ? "Starting..." : "Start"}
           </Button>
         </form>

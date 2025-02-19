@@ -20,6 +20,13 @@ export const assignmentSchema = z.object({
   amount: z.string().min(1, {
     message: "Please enter a amount",
   }),
+  visitReason: z
+    .string({
+      required_error: "Please select a reason",
+    })
+    .min(3, {
+      message: "Please select a reason",
+    }),
   startTime: z.string().datetime().optional(),
   startAddress: z.string().optional(),
   status: z.enum([Status.ASSIGNED, Status.PENDING, Status.COMPLETED]),
@@ -30,6 +37,7 @@ export const stepFormSchema = z.object({
   amount: z.string().min(2, {
     message: "Please enter a valid amount!",
   }),
+  remarks: z.string().optional(),
   collectedAddress: z.string().optional(),
   collectedTime: z.string().datetime().optional(),
   image: z.string().url(),

@@ -17,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { useGeolocation } from "@/hooks/use-geo-location";
@@ -41,6 +42,7 @@ export const AssignFormStep = ({
       amount: "",
       collectedAddress: "",
       image: "",
+      remarks: "",
       collectedTime: new Date().toISOString(),
       status: Status.COMPLETED,
     },
@@ -151,6 +153,20 @@ export const AssignFormStep = ({
             />
           )}
         </div>
+
+        <FormField
+          control={form.control}
+          name="remarks"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Remarks (optional)</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Type your message here." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Submit Button */}
         <Button type="submit" disabled={isSubmitting}>

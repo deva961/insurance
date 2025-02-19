@@ -67,6 +67,8 @@ model Assignment {
   startTime        DateTime?
   collectedTime    DateTime?
   endTime          DateTime?
+  visitReason      String?
+  remarks          String?
   image            String?
   status           Status    @default(ASSIGNED)
 

@@ -1,4 +1,7 @@
-import { getAssignmentsForDriver } from "@/actions/assignment-action";
+import {
+  getAssignmentsForDriver,
+  getCurrentDayAssignmentsCount,
+} from "@/actions/assignment-action";
 import { getDriverById } from "@/actions/driver-action";
 import { AssignFormStep } from "@/app/_components/forms/assign-step2-form";
 import { OptionForm } from "@/app/_components/option-form";
@@ -40,12 +43,14 @@ const Insurance = async () => {
       );
     }
 
+    const todaysCount = await getCurrentDayAssignmentsCount(driver.id);
+
     // Fetch the existing assignment for the driver
     const existingAssignment = await getAssignmentsForDriver(driver.id);
 
     // Check if the driver is busy and no assignment exists
     if (driver.status === DriverStatus.BUSY && !existingAssignment?.data) {
-      return <OptionForm driverId={driver.id} />;
+      return <OptionForm driverId={driver.id} count={todaysCount?.res || 0} />;
     }
 
     if (driver.status === DriverStatus.OFFICE && !existingAssignment?.data) {
@@ -63,6 +68,7 @@ const Insurance = async () => {
             });
             revalidatePath("/insurance");
           }}
+          className="flex min-h-[calc(100vh-160px)] items-center justify-center"
         >
           <Button
             type="submit"

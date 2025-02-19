@@ -14,7 +14,13 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { AssignForm } from "./forms/assign-form";
 
-export const OptionForm = ({ driverId }: { driverId: string }) => {
+export const OptionForm = ({
+  driverId,
+  count,
+}: {
+  driverId: string;
+  count: number;
+}) => {
   const [continueForm, setContinueForm] = useState<boolean>(false);
   const handleClick = async () => {
     const status = DriverStatus.OFFICE;
@@ -39,7 +45,7 @@ export const OptionForm = ({ driverId }: { driverId: string }) => {
             size={"lg"}
             onClick={() => setContinueForm(true)}
           >
-            Continue (కొనసాగించండి)
+            Collect {count + 1} Customer Payment (కొనసాగించండి)
           </Button>
 
           <Button

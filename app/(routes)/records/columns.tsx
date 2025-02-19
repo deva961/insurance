@@ -79,7 +79,11 @@ export const columns: ColumnDef<AssignmentData>[] = [
     header: "Start Time",
     cell: ({ row }) => {
       const startTime: Date = row.getValue("startTime");
-      return <div>{startTime ? new Date(startTime).toLocaleString() : ""}</div>;
+      return (
+        <div>
+          {startTime ? new Date(startTime).toLocaleString("en-IN") : ""}
+        </div>
+      );
     },
   },
   {
@@ -96,7 +100,7 @@ export const columns: ColumnDef<AssignmentData>[] = [
       const collectedTime: Date = row.getValue("collectedTime");
       return (
         <div>
-          {collectedTime ? new Date(collectedTime).toLocaleString() : ""}
+          {collectedTime ? new Date(collectedTime).toLocaleString("en-IN") : ""}
         </div>
       );
     },

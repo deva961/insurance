@@ -93,6 +93,7 @@ export const createAssignment = async (
     amount,
     startAddress,
     startTime,
+    visitReason,
   } = validatedFields.data;
 
   const existingAssignment = await db.assignment.findFirst({
@@ -121,6 +122,7 @@ export const createAssignment = async (
           amount,
           startAddress,
           startTime,
+          visitReason,
           status: Status.PENDING,
         },
       }),
@@ -172,6 +174,7 @@ export const updateAssignment = async (
         amount: values.amount,
         status: values.status,
         image: values.image,
+        remarks: values.remarks,
         collectedAddress: values.collectedAddress,
         collectedTime: values.collectedTime,
       },
@@ -190,5 +193,41 @@ export const updateAssignment = async (
       message: "Failed to update assignment due to an internal error.",
       status: 500,
     };
+  }
+};
+
+export const getCurrentDayAssignmentsCount = async (driverId: string) => {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Start of today
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // End of today
+
+    const res = await db.assignment.count({
+      where: {
+        driverId,
+        createdAt: {
+          gte: startOfDay, // Greater than or equal to the start of the day
+          lte: endOfDay, // Less than or equal to the end of the day
+        },
+      },
+    });
+
+    if (!res) {
+      return {
+        res: 0,
+        message: "Success",
+        status: 200,
+      };
+    }
+
+    return {
+      res,
+      message: "success",
+      status: 200,
+    };
+  } catch (error) {
+    console.error("Error fetching assignments:", error);
   }
 };
