@@ -3,13 +3,7 @@ import { getDriverById } from "@/actions/driver-action";
 import { AssignFormStep } from "@/app/_components/forms/assign-step2-form";
 import { OptionForm } from "@/app/_components/option-form";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { DriverStatus } from "@prisma/client";
@@ -76,10 +70,10 @@ const Insurance = async () => {
     if (existingAssignment?.data && !Array.isArray(existingAssignment.data)) {
       return (
         <Card className="max-w-screen-xl">
-          <CardHeader>
+          {/* <CardHeader>
             <CardTitle>Insurance</CardTitle>
             <CardDescription>Collect the amount from customer.</CardDescription>
-          </CardHeader>
+          </CardHeader> */}
           <CardContent>
             <AssignFormStep
               formId={existingAssignment.data.id}

@@ -2,13 +2,7 @@
 
 import { AssignForm } from "@/app/_components/forms/assign-form";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 
 export const StartProcess = ({
@@ -35,10 +29,10 @@ export const StartProcess = ({
 
       {start && (
         <Card className="max-w-screen-xl">
-          <CardHeader>
+          {/* <CardHeader>
             <CardTitle>Insurance</CardTitle>
             <CardDescription>Collect the amount from customer.</CardDescription>
-          </CardHeader>
+          </CardHeader> */}
           <CardContent>
             <AssignForm driverId={driverId} count={count} />
           </CardContent>

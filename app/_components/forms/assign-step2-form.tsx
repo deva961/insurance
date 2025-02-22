@@ -25,6 +25,7 @@ import { useGeolocation } from "@/hooks/use-geo-location";
 import Image from "next/image";
 import { ImageIcon } from "lucide-react";
 import { compressImage } from "@/lib/compress-img";
+import { uploadToS3 } from "@/lib/s3";
 
 export const AssignFormStep = ({
   driverId,
@@ -65,7 +66,9 @@ export const AssignFormStep = ({
     if (file) {
       try {
         const compressedImage = await compressImage(file);
-        const imageUrl = URL.createObjectURL(compressedImage);
+        const arrayBuffer = await compressedImage.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const imageUrl = await uploadToS3(buffer, file.name, file.type);
 
         setImage(imageUrl);
         form.setValue("image", imageUrl);
