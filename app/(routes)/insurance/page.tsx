@@ -1,7 +1,4 @@
-import {
-  getAssignmentsForDriver,
-  getCurrentDayAssignmentsCount,
-} from "@/actions/assignment-action";
+import { getAssignmentsForDriver } from "@/actions/assignment-action";
 import { getDriverById } from "@/actions/driver-action";
 import { AssignFormStep } from "@/app/_components/forms/assign-step2-form";
 import { OptionForm } from "@/app/_components/option-form";
@@ -36,21 +33,15 @@ const Insurance = async () => {
 
     // If no driver is found, return an error message
     if (!driver) {
-      return (
-        <div>
-          <p>Driver not found!</p>
-        </div>
-      );
+      redirect("/auth/sign-in");
     }
-
-    const todaysCount = await getCurrentDayAssignmentsCount(driver.id);
 
     // Fetch the existing assignment for the driver
     const existingAssignment = await getAssignmentsForDriver(driver.id);
 
     // Check if the driver is busy and no assignment exists
     if (driver.status === DriverStatus.BUSY && !existingAssignment?.data) {
-      return <OptionForm driverId={driver.id} count={todaysCount?.res || 0} />;
+      return <OptionForm driverId={driver.id} count={driver.count} />;
     }
 
     if (driver.status === DriverStatus.OFFICE && !existingAssignment?.data) {
@@ -64,6 +55,7 @@ const Insurance = async () => {
               },
               data: {
                 status: DriverStatus.AVAILABLE,
+                count: 0,
               },
             });
             revalidatePath("/insurance");
@@ -102,7 +94,7 @@ const Insurance = async () => {
     if (!existingAssignment?.data && driver.status === DriverStatus.AVAILABLE) {
       return (
         <>
-          <StartProcess driverId={driver.id} />
+          <StartProcess driverId={driver.id} count={driver.count || 0} />
         </>
       );
     }

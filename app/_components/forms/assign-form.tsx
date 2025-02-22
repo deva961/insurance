@@ -29,7 +29,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const AssignForm = ({ driverId }: { driverId: string }) => {
+export const AssignForm = ({
+  driverId,
+  count,
+}: {
+  driverId: string;
+  count: number;
+}) => {
   const { address } = useGeolocation();
 
   const form = useForm<z.infer<typeof assignmentSchema>>({
@@ -43,6 +49,7 @@ export const AssignForm = ({ driverId }: { driverId: string }) => {
       amount: "0",
       visitReason: "",
       status: Status.ASSIGNED,
+      count: count + 1,
     },
   });
 

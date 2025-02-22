@@ -11,7 +11,13 @@ import {
 } from "@/components/ui/card";
 import { useState } from "react";
 
-export const StartProcess = ({ driverId }: { driverId: string }) => {
+export const StartProcess = ({
+  driverId,
+  count,
+}: {
+  driverId: string;
+  count: number;
+}) => {
   const [start, setStart] = useState<boolean>(false);
 
   return (
@@ -34,7 +40,7 @@ export const StartProcess = ({ driverId }: { driverId: string }) => {
             <CardDescription>Collect the amount from customer.</CardDescription>
           </CardHeader>
           <CardContent>
-            <AssignForm driverId={driverId} />
+            <AssignForm driverId={driverId} count={count} />
           </CardContent>
         </Card>
       )}

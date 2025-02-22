@@ -159,7 +159,7 @@ export const AssignFormStep = ({
           name="remarks"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Remarks (optional)</FormLabel>
+              <FormLabel>Remarks</FormLabel>
               <FormControl>
                 <Textarea placeholder="Type your message here." {...field} />
               </FormControl>

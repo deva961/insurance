@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const assignmentSchema = z.object({
   driverId: z.string(),
+  count: z.number().default(0),
   customerName: z.string().min(4, {
     message: "Please enter customer name",
   }),
@@ -34,10 +35,13 @@ export const assignmentSchema = z.object({
 
 export const stepFormSchema = z.object({
   driverId: z.string(),
-  amount: z.string().min(2, {
+  // count: z.number().default(0),
+  amount: z.string().min(1, {
     message: "Please enter a valid amount!",
   }),
-  remarks: z.string().optional(),
+  remarks: z.string().min(1, {
+    message: "Please enter remarks",
+  }),
   collectedAddress: z.string().optional(),
   collectedTime: z.string().datetime().optional(),
   image: z.string().url(),

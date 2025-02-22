@@ -47,6 +47,7 @@ model Driver {
   id         String       @id @default(uuid())
   userId     String       @unique
   employeeId String       @unique
+  count      Int          @default(0)
   status     DriverStatus @default(AVAILABLE)
   user       User         @relation(fields: [userId], references: [id])
 

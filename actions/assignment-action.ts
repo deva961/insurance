@@ -94,6 +94,7 @@ export const createAssignment = async (
     startAddress,
     startTime,
     visitReason,
+    count,
   } = validatedFields.data;
 
   const existingAssignment = await db.assignment.findFirst({
@@ -130,6 +131,7 @@ export const createAssignment = async (
         where: { id: driverId },
         data: {
           status: DriverStatus.BUSY,
+          count,
         },
       }),
     ]);
