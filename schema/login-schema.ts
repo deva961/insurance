@@ -3,7 +3,7 @@ import { z } from "zod";
 export const loginSchema = z.object({
   phone: z
     .string()
-    .regex(/^(?:\+91|91)?[789]\d{9}$/, {
+    .regex(/^(?:\+91|91)?[6789]\d{9}$/, {
       message: "Phone number must be a valid number.",
     })
     .min(10, {

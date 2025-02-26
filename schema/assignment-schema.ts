@@ -9,7 +9,7 @@ export const assignmentSchema = z.object({
   }),
   customerPhone: z
     .string()
-    .regex(/^(?:\+91|91)?[789]\d{9}$/, {
+    .regex(/^(?:\+91|91)?[6789]\d{9}$/, {
       message: "Phone number must be a valid number.",
     })
     .min(10, {

@@ -7,7 +7,7 @@ export const userSchema = z.object({
   }),
   phone: z
     .string()
-    .regex(/^(?:\+91|91)?[789]\d{9}$/, {
+    .regex(/^(?:\+91|91)?[6789]\d{9}$/, {
       message: "Phone number must be a valid number.",
     })
     .min(10, {
@@ -22,7 +22,18 @@ export const userSchema = z.object({
 
 export const userExtendedSchema = userSchema.extend({
   showroomId: z.string().optional(),
-  employeeId: z.string().optional(),
+  employeeId: z
+    .string()
+    .regex(/^[1-9][0-9]*$/, {
+      message: "Employee Id must be a valid number.",
+    })
+    .min(4, {
+      message: "Employee Id must be at least 4 characters.",
+    })
+    .max(4, {
+      message: "Employee Id must be at most 4 characters.",
+    })
+    .optional(),
 });
 
 export const registerationSchema = userSchema.extend({
