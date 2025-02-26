@@ -3,10 +3,11 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AssignmentData } from "./columns";
+import Image from "next/image";
 
 export const ViewRecord = ({ data }: { data: AssignmentData }) => {
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 ">
       <div className="flex items-center justify-between">
         <h1 className="font-medium text-lg capitalize">
           Agent: {data.driver.user.name}
@@ -100,6 +101,15 @@ export const ViewRecord = ({ data }: { data: AssignmentData }) => {
             className="focus:select-none"
             value={new Date(data.collectedTime).toLocaleString()}
           />
+        </div>
+      )}
+
+      {data.image && (
+        <div>
+          <Label htmlFor="collectedTime">Image</Label>
+          <div className="relative aspect-video h-40 rounded-lg overflow-hidden object-contain">
+            <Image src={data.image} alt={"img"} fill loading="lazy" />
+          </div>
         </div>
       )}
     </div>

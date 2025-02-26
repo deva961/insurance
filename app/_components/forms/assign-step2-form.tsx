@@ -17,15 +17,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
 import { useGeolocation } from "@/hooks/use-geo-location";
+import { useEffect, useState } from "react";
 
-import Image from "next/image";
-import { ImageIcon } from "lucide-react";
 import { compressImage } from "@/lib/compress-img";
-import { uploadToS3 } from "@/lib/s3";
+import { ImageIcon } from "lucide-react";
+import Image from "next/image";
+
+import { FirebaseStorage } from "@/lib/firebase";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 export const AssignFormStep = ({
   driverId,
@@ -35,6 +37,8 @@ export const AssignFormStep = ({
   formId: string;
 }) => {
   const [image, setImage] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof stepFormSchema>>({
     resolver: zodResolver(stepFormSchema),
@@ -68,12 +72,40 @@ export const AssignFormStep = ({
         const compressedImage = await compressImage(file);
         const arrayBuffer = await compressedImage.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        const imageUrl = await uploadToS3(buffer, file.name, file.type);
 
-        setImage(imageUrl);
-        form.setValue("image", imageUrl);
+        //reference to the storage location
+        const storageRef = ref(FirebaseStorage, `insurance/${file.name}`);
+
+        // Upload the file to Firebase Storage
+        const uploadTask = uploadBytesResumable(storageRef, buffer);
+
+        // Monitor upload progress
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            // Calculate upload progress percentage
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadProgress(progress);
+            setIsUploading(true);
+          },
+          (error) => {
+            console.log("Error while uploading the image:", error);
+            toast.error("Error uploading the image");
+            setIsUploading(false);
+          },
+          () => {
+            // Handle successful upload and get the download URL
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              setImage(downloadURL);
+              form.setValue("image", downloadURL);
+              setIsUploading(false);
+            });
+          }
+        );
       } catch (error) {
         console.log("Error while handling image change", error);
+        toast.error("Error uploading the image");
       }
     }
   };
@@ -154,6 +186,20 @@ export const AssignFormStep = ({
               width={250}
               loading="lazy"
             />
+          )}
+
+          {isUploading && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-600">
+                Uploading... {Math.round(uploadProgress)}%
+              </p>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-indigo-600 h-2.5 rounded-full"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            </div>
           )}
         </div>
 
